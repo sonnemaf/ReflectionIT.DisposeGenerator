@@ -2,10 +2,10 @@
 
 namespace Project;
 
-//[Disposable]
-[Disposable(HasUnmangedResources = true)]
-//[AsyncDisposable]
-[AsyncDisposable(GenerateOnDisposingAsync = false, GenerateOnDisposedAsync = false)]
+[Disposable]
+//[Disposable(HasUnmangedResources = true)]
+[AsyncDisposable]
+//[AsyncDisposable(GenerateOnDisposingAsync = true, GenerateOnDisposedAsync = true)]
 public partial class LogWriter {
 
     [CascadeDispose()]
