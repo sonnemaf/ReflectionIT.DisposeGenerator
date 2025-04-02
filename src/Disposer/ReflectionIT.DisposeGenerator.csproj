@@ -3,10 +3,10 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
-		<PackageIcon>icon.jpg</PackageIcon>
+		<PackageIcon>Logo.png</PackageIcon>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>true</ImplicitUsings>
-		<PackageId>Disposer</PackageId>
+		<PackageId>ReflectionIT.DisposeGenerator</PackageId>
 		<Description>A source generator for creating best-practice IDisposable implementation using a [Disposable] attribute</Description>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
@@ -18,11 +18,11 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<None Include="icon.jpg" Pack="true" PackagePath="\" />
+		<None Include="Logo.png" Pack="true" PackagePath="\" />
 		<None Include="../../README.md" Pack="true" PackagePath="\" />
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-		<None Include="$(OutputPath)\Disposer.Attributes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-		<None Include="$(OutputPath)\Disposer.Attributes.dll" Pack="true" PackagePath="lib\netstandard2.0" Visible="false" />
+		<None Include="$(OutputPath)\ReflectionIT.DisposeGenerator.Attributes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="$(OutputPath)\ReflectionIT.DisposeGenerator.Attributes.dll" Pack="true" PackagePath="lib\netstandard2.0" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup>

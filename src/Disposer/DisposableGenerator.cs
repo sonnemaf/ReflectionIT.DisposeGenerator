@@ -12,7 +12,7 @@ namespace ReflectionIT.DisposeGenerator;
 public class DisposableGenerator : IIncrementalGenerator {
     private const string DisposableAttributeName = "ReflectionIT.DisposeGenerator.Attributes.DisposableAttribute";
     private const string AsyncDisposableAttributeName = "ReflectionIT.DisposeGenerator.Attributes.AsyncDisposableAttribute";
-    private const string CascadeDisposeAttributeName = "ReflectionIT.DisposeGenerator.Attributes.CascadeDisposeAttribute";
+    private const string DisposeAttributeName = "ReflectionIT.DisposeGenerator.Attributes.DisposeAttribute";
 
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
@@ -81,7 +81,7 @@ public class DisposableGenerator : IIncrementalGenerator {
                         new DiagnosticDescriptor(
                             "DISPOSER-0001",
                             "Non-void method return type",
-                            $"The type '{0}' of {1} '{2}' does not implement System.IDisposable nor System.IAsyncDisposable. {CascadeDisposeAttributeName} must be attached only to fields or properties that implements System.IDisposable or System.IAsyncDisposable",
+                            $"The type '{0}' of {1} '{2}' does not implement System.IDisposable nor System.IAsyncDisposable. {DisposeAttributeName} must be attached only to fields or properties that implements System.IDisposable or System.IAsyncDisposable",
                     "Disposer", DiagnosticSeverity.Error,
                     true),
                         fieldOrProperty.Location,
@@ -97,15 +97,15 @@ public class DisposableGenerator : IIncrementalGenerator {
         }
     }
 
-    private static CascadeDisposeAttribute GetCascadeDisposeAttributeOrDefault(AttributeData? attributeData) {
+    private static DisposeAttribute GetDisposeAttributeOrDefault(AttributeData? attributeData) {
         if (attributeData is null) {
-            return new CascadeDisposeAttribute();
+            return new DisposeAttribute();
         }
 
-        bool? setToNull = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(CascadeDisposeAttribute.SetToNull)).Value.Value as bool?;
-        bool? ignore = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(CascadeDisposeAttribute.Ignore)).Value.Value as bool?;
+        bool? setToNull = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(DisposeAttribute.SetToNull)).Value.Value as bool?;
+        bool? ignore = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(DisposeAttribute.Ignore)).Value.Value as bool?;
 
-        CascadeDisposeAttribute attribute = new();
+        DisposeAttribute attribute = new();
 
         if (setToNull is not null) {
             attribute.SetToNull = setToNull.Value;
@@ -162,16 +162,16 @@ public class DisposableGenerator : IIncrementalGenerator {
         AttributeData? attributeData = field.GetAttributes()
             .FirstOrDefault(a => namedTypeSymbol?.Equals(a.AttributeClass, SymbolEqualityComparer.Default) ?? false);
 
-        CascadeDisposeAttribute cascadeDispose = GetCascadeDisposeAttributeOrDefault(attributeData);
+        DisposeAttribute disposeAttribute = GetDisposeAttributeOrDefault(attributeData);
 
-        return cascadeDispose.Ignore
+        return disposeAttribute.Ignore
             ? null
             : new FieldOrPropertyToDispose(field.Name, false,
             field.Locations.FirstOrDefault(),
             field.Type,
             fieldTypeImplementDisposable,
             fieldTypeImplementAsyncDisposable,
-            cascadeDispose.SetToNull);
+            disposeAttribute.SetToNull);
     }
 
     static FieldOrPropertyToDispose? GetProperty(IMethodSymbol property, INamedTypeSymbol? namedTypeSymbol) {
@@ -185,16 +185,16 @@ public class DisposableGenerator : IIncrementalGenerator {
         AttributeData? attributeData = property.GetAttributes()
             .FirstOrDefault(a => namedTypeSymbol?.Equals(a.AttributeClass, SymbolEqualityComparer.Default) ?? false);
 
-        CascadeDisposeAttribute cascadeDispose = GetCascadeDisposeAttributeOrDefault(attributeData);
+        DisposeAttribute disposeAttribute = GetDisposeAttributeOrDefault(attributeData);
 
-        return cascadeDispose.Ignore
+        return disposeAttribute.Ignore
             ? null
             : new FieldOrPropertyToDispose(property.Name, false,
             property.Locations.FirstOrDefault(),
             property.ReturnType,
             fieldTypeImplementDisposable,
             fieldTypeImplementAsyncDisposable,
-            cascadeDispose.SetToNull);
+            disposeAttribute.SetToNull);
     }
 
     private static List<DisposableToGenerate> GetTypesToGenerate(
@@ -204,7 +204,7 @@ public class DisposableGenerator : IIncrementalGenerator {
         List<DisposableToGenerate> classesToGenerate = new();
         INamedTypeSymbol? disposableAttribute = compilation.GetTypeByMetadataName(DisposableAttributeName);
         INamedTypeSymbol? asyncDisposableAttribute = compilation.GetTypeByMetadataName(AsyncDisposableAttributeName);
-        INamedTypeSymbol? cascadeDisposeAttribute = compilation.GetTypeByMetadataName(CascadeDisposeAttributeName);
+        INamedTypeSymbol? disposeAttribute = compilation.GetTypeByMetadataName(DisposeAttributeName);
 
         if (disposableAttribute == null && asyncDisposableAttribute == null) {
             // nothing to do if this type isn't available
@@ -242,7 +242,7 @@ public class DisposableGenerator : IIncrementalGenerator {
 
             IEnumerable<IFieldSymbol> fields = classSymbol.GetMembers().OfType<IFieldSymbol>();
             foreach (IFieldSymbol field in fields) {
-                FieldOrPropertyToDispose? toDispose = GetField(field, cascadeDisposeAttribute);
+                FieldOrPropertyToDispose? toDispose = GetField(field, disposeAttribute);
                 if (toDispose is not null) {
                     list.Add(toDispose.Value);
                 }
@@ -255,7 +255,7 @@ public class DisposableGenerator : IIncrementalGenerator {
                 .OfType<IMethodSymbol>();
 
             foreach (IMethodSymbol property in properties) {
-                FieldOrPropertyToDispose? toDispose = GetProperty(property, cascadeDisposeAttribute);
+                FieldOrPropertyToDispose? toDispose = GetProperty(property, disposeAttribute);
                 if (toDispose is not null) {
                     list.Add(toDispose.Value);
                 }

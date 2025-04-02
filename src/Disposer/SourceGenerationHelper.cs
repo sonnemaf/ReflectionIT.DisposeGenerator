@@ -210,7 +210,7 @@ public static class SourceGenerationHelper {
             }
 
             [global::System.AttributeUsage(global::System.AttributeTargets.Field | global::System.AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
-            public class CascadeDisposeAttribute : global::System.Attribute
+            public class DisposeAttribute : global::System.Attribute
             {
                 public bool Ignore { get; set; } 
                 public bool SetToNull { get; set; }

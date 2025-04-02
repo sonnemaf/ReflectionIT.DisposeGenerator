@@ -8,9 +8,9 @@ namespace Project;
 //[AsyncDisposable(GenerateOnDisposingAsync = true, GenerateOnDisposedAsync = true)]
 public partial class LogWriter {
 
-    [CascadeDispose()]
-    //[CascadeDispose(SetToNull = true)]
-    //[CascadeDispose(SetToNull = true, Ignore = true)]
+    [Dispose()]
+    //[Dispose(SetToNull = true)]
+    //[Dispose(SetToNull = true, Ignore = true)]
     private readonly StreamWriter _streamWriter;
 
     public LogWriter(string path) {
