@@ -13,6 +13,7 @@ public readonly struct DisposableToGenerate
     public readonly FieldOrPropertyToDispose[] FieldsOrProperties;
     public readonly bool GenerateOnDisposingAsync;
     public readonly bool GenerateOnDisposedAsync;
+    public readonly bool ConfigureAwait;
 
     public DisposableToGenerate(
         string name,
@@ -23,7 +24,8 @@ public readonly struct DisposableToGenerate
         bool implementIAsyncDisposable,
         FieldOrPropertyToDispose[] fieldsOrProperties,
         bool generateOnDisposingAsync,
-        bool generateOnDisposedAsync)
+        bool generateOnDisposedAsync,
+        bool configureAwait)
     {
         Name = name;
         Namespace = ns;
@@ -34,6 +36,7 @@ public readonly struct DisposableToGenerate
         FieldsOrProperties = fieldsOrProperties;
         GenerateOnDisposingAsync = generateOnDisposingAsync;
         GenerateOnDisposedAsync = generateOnDisposedAsync;
+        ConfigureAwait = configureAwait;
     }
 }
 

@@ -7,8 +7,8 @@
     <File Path="version.props" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/Disposer.Attributes/ReflectionIT.DisposeGenerator.Attributes.csproj" />
-    <Project Path="src/Disposer/ReflectionIT.DisposeGenerator.csproj" />
+    <Project Path="src/ReflectionIT.DisposeGenerator.Attributes/ReflectionIT.DisposeGenerator.Attributes.csproj" />
+    <Project Path="src/ReflectionIT.DisposeGenerator/ReflectionIT.DisposeGenerator.csproj" />
+    <Project Path="src/SampleProject/SampleProject.csproj" />
   </Folder>
-  <Project Path="src/SampleProject/SampleProject.csproj" />
 </Solution>

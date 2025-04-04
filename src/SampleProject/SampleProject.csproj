@@ -9,9 +9,9 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Disposer.Attributes\ReflectionIT.DisposeGenerator.Attributes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
+		<ProjectReference Include="..\ReflectionIT.DisposeGenerator.Attributes\ReflectionIT.DisposeGenerator.Attributes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
 		
-		<ProjectReference Include="..\Disposer\ReflectionIT.DisposeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -15,5 +15,10 @@ public interface ICsFileBuilder : IDisposable
     ICsFileBuilder AddIfBlock(string condition, params string[] lines);
     ICsFileBuilder EndBlock();
     ICsFileBuilder EndNamespace();
+
+    ICsFileBuilder AddGeneratedAttributes(
+       string generatorName,
+       bool useFullyQualifiedTypeNames = true,
+       bool includeNonUserCodeAttributes = true);
     string Build();
 }

@@ -103,38 +103,8 @@ public class DisposableGenerator : IIncrementalGenerator {
         }
 
         bool? setToNull = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(DisposeAttribute.SetToNull)).Value.Value as bool?;
-        bool? ignore = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(DisposeAttribute.Ignore)).Value.Value as bool?;
 
-        DisposeAttribute attribute = new();
-
-        if (setToNull is not null) {
-            attribute.SetToNull = setToNull.Value;
-        }
-
-        if (ignore is not null) {
-            attribute.Ignore = ignore.Value;
-        }
-
-        return attribute;
-    }
-
-    private static AsyncDisposableAttribute GetAsyncDisposableAttributeOrDefault(AttributeData? attributeData) {
-        if (attributeData is null) {
-            return new();
-        }
-
-        bool? generateOnDisposingAsync = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(AsyncDisposableAttribute.GenerateOnDisposingAsync)).Value.Value as bool?;
-        bool? generateOnDisposedAsync = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(AsyncDisposableAttribute.GenerateOnDisposedAsync)).Value.Value as bool?;
-
-        AsyncDisposableAttribute attribute = new();
-
-        if (generateOnDisposingAsync is not null) {
-            attribute.GenerateOnDisposingAsync = generateOnDisposingAsync.Value;
-        }
-
-        if (generateOnDisposedAsync is not null) {
-            attribute.GenerateOnDisposedAsync = generateOnDisposedAsync.Value;
-        }
+        DisposeAttribute attribute = new() { SetToNull = setToNull.GetValueOrDefault() };
 
         return attribute;
     }
@@ -144,9 +114,19 @@ public class DisposableGenerator : IIncrementalGenerator {
             return new();
         }
 
+        bool? configureAwait = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(DisposableAttribute.ConfigureAwait)).Value.Value as bool?;
+        bool? generateDisposeAsync = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(DisposableAttribute.GenerateDisposeAsync)).Value.Value as bool?;
+        bool? generateOnDisposingAsync = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(DisposableAttribute.GenerateOnDisposingAsync)).Value.Value as bool?;
+        bool? generateOnDisposedAsync = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(DisposableAttribute.GenerateOnDisposedAsync)).Value.Value as bool?;
         bool? hasUnmanagedResources = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(DisposableAttribute.HasUnmangedResources)).Value.Value as bool?;
 
-        DisposableAttribute attribute = new() { HasUnmangedResources = hasUnmanagedResources ?? false };
+        DisposableAttribute attribute = new() { 
+            ConfigureAwait = configureAwait.GetValueOrDefault(),
+            GenerateDisposeAsync = generateDisposeAsync.GetValueOrDefault(),
+            GenerateOnDisposingAsync = generateOnDisposingAsync.GetValueOrDefault(),
+            GenerateOnDisposedAsync = generateOnDisposedAsync.GetValueOrDefault(),
+            HasUnmangedResources = hasUnmanagedResources.GetValueOrDefault(),
+        };
 
         return attribute;
     }
@@ -164,9 +144,7 @@ public class DisposableGenerator : IIncrementalGenerator {
 
         DisposeAttribute disposeAttribute = GetDisposeAttributeOrDefault(attributeData);
 
-        return disposeAttribute.Ignore
-            ? null
-            : new FieldOrPropertyToDispose(field.Name, false,
+        return new FieldOrPropertyToDispose(field.Name, false,
             field.Locations.FirstOrDefault(),
             field.Type,
             fieldTypeImplementDisposable,
@@ -187,9 +165,7 @@ public class DisposableGenerator : IIncrementalGenerator {
 
         DisposeAttribute disposeAttribute = GetDisposeAttributeOrDefault(attributeData);
 
-        return disposeAttribute.Ignore
-            ? null
-            : new FieldOrPropertyToDispose(property.Name, false,
+        return new FieldOrPropertyToDispose(property.Name, false,
             property.Locations.FirstOrDefault(),
             property.ReturnType,
             fieldTypeImplementDisposable,
@@ -236,7 +212,6 @@ public class DisposableGenerator : IIncrementalGenerator {
             }
 
             DisposableAttribute disposableValues = GetDisposableAttributeOrDefault(disposable);
-            AsyncDisposableAttribute asyncDisposableValues = GetAsyncDisposableAttributeOrDefault(asyncDisposable);
 
             List<FieldOrPropertyToDispose> list = new();
 
@@ -267,9 +242,11 @@ public class DisposableGenerator : IIncrementalGenerator {
                      hasUnmangedResources: disposableValues.HasUnmangedResources,
                      isSealed,
                      hasDisposable,
-                     hasAsyncDisposable,
+                     disposableValues.GenerateDisposeAsync,
                      list.ToArray(),
-                     asyncDisposableValues.GenerateOnDisposingAsync, asyncDisposableValues.GenerateOnDisposedAsync));
+                     disposableValues.GenerateOnDisposingAsync, 
+                     disposableValues.GenerateOnDisposedAsync,
+                     disposableValues.ConfigureAwait));
         }
 
         return classesToGenerate;

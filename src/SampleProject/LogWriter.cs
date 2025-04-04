@@ -2,15 +2,11 @@
 
 namespace Project;
 
-[Disposable]
-//[Disposable(HasUnmangedResources = true)]
-[AsyncDisposable]
-//[AsyncDisposable(GenerateOnDisposingAsync = true, GenerateOnDisposedAsync = true)]
+[Disposable(GenerateDisposeAsync = true)]
 public partial class LogWriter {
 
-    [Dispose()]
+    [Dispose]
     //[Dispose(SetToNull = true)]
-    //[Dispose(SetToNull = true, Ignore = true)]
     private readonly StreamWriter _streamWriter;
 
     public LogWriter(string path) {
@@ -19,9 +15,9 @@ public partial class LogWriter {
 
     public void Write(string text) => _streamWriter.WriteLine(text.ToUpper());
 
-    //partial void OnDisposing(bool disposing) {
+    partial void OnDisposing(bool disposing) {
 
-    //}
+    }
 
     //private partial ValueTask OnDisposedAsync() {
     //    return ValueTask.CompletedTask;

@@ -26,7 +26,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Disposer.Attributes\ReflectionIT.DisposeGenerator.Attributes.csproj" PrivateAssets="all" />
+		<ProjectReference Include="..\ReflectionIT.DisposeGenerator.Attributes\ReflectionIT.DisposeGenerator.Attributes.csproj" PrivateAssets="all" />
 	</ItemGroup>
 
 </Project>
