@@ -1,4 +1,4 @@
-﻿using Project;
+﻿using SampleProject;
 
 using (LogWriter lw = new LogWriter(@"d:\test.txt")) {
     lw.Write("Test1");

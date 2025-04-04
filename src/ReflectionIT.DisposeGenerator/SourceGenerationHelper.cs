@@ -39,9 +39,10 @@ public static class SourceGenerationHelper {
                .AddGeneratedAttributes(GeneratorName, includeNonUserCodeAttributes: false)
                .AddStatements("[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]",
                                     "private bool _isDisposed = false;")
+               .AddEmptyLine()
                .AddProtectedDisposed(classToGenerate.IsSealed)
                .AddEmptyLine()
-               .AddFinializer(classToGenerate.HasUnmangedResources, classToGenerate.Name, !classToGenerate.ImplementDisposable && classToGenerate.ImplementIAsyncDisposable)
+               .AddFinalizer(classToGenerate.HasUnmangedResources, classToGenerate.Name, !classToGenerate.ImplementDisposable && classToGenerate.ImplementIAsyncDisposable)
                .EndBlock()
                .AddEmptyLine();
     }
@@ -75,7 +76,7 @@ public static class SourceGenerationHelper {
         return builder;
     }
 
-    private static ICsFileBuilder AddFinializer(this ICsFileBuilder builder, bool hasUnmanagedResources, string className, bool isAsync) {
+    private static ICsFileBuilder AddFinalizer(this ICsFileBuilder builder, bool hasUnmanagedResources, string className, bool isAsync) {
         if (hasUnmanagedResources && !isAsync) {
 
             builder.AddGeneratedAttributes(GeneratorName)
@@ -158,18 +159,20 @@ public static class SourceGenerationHelper {
     }
 
     public static string GetDisposeStatement(FieldOrPropertyToDispose fieldOrProperty, bool isAsync, bool configureAwait) {
-        string needAwait = isAsync && fieldOrProperty.ImplementIAsyncDisposable ? "await" : string.Empty;
-        string needAsync = isAsync && fieldOrProperty.ImplementIAsyncDisposable ? $"Async().ConfigureAwait({configureAwait.ToString().ToLower()})" : "()";
+        string needAwait = isAsync ? "await" : string.Empty;
+        string needAsync = isAsync ? $"Async().ConfigureAwait({configureAwait.ToString().ToLower()})" : "()";
+        string disposeType = isAsync ? "Async" : string.Empty;
+        string localVar = $"var{fieldOrProperty.Name}";
 
         string disposeStatement = string.Empty;
         
         disposeStatement = fieldOrProperty.Type.IsValueType
             ? $"{needAwait} {fieldOrProperty.Name}.Dispose{needAsync};"
             : $"""
-                if ({fieldOrProperty.Name} is global::{fieldOrProperty.Type} @object) {needAwait} @object.Dispose{needAsync}; 
+                if ({fieldOrProperty.Name} is global::System.I{disposeType}Disposable @{localVar}) {needAwait} @{localVar}.Dispose{needAsync}; 
                 """;
 
-        string setToNullStatement = fieldOrProperty.SetToNull ? $"{fieldOrProperty.Name} = null;" : "";
+        string setToNullStatement = fieldOrProperty.SetToNull ? $"\r\n{fieldOrProperty.Name} = null;" : "";
 
         return $"{disposeStatement}{setToNullStatement}";
     }

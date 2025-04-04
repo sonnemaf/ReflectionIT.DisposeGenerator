@@ -97,9 +97,9 @@ public class DisposableGenerator : IIncrementalGenerator {
         }
     }
 
-    private static DisposeAttribute GetDisposeAttributeOrDefault(AttributeData? attributeData) {
+    private static DisposeAttribute? GetDisposeAttributeOrDefault(AttributeData? attributeData) {
         if (attributeData is null) {
-            return new DisposeAttribute();
+            return null;
         }
 
         bool? setToNull = attributeData.NamedArguments.FirstOrDefault(a => a.Key == nameof(DisposeAttribute.SetToNull)).Value.Value as bool?;
@@ -142,19 +142,21 @@ public class DisposableGenerator : IIncrementalGenerator {
         AttributeData? attributeData = field.GetAttributes()
             .FirstOrDefault(a => namedTypeSymbol?.Equals(a.AttributeClass, SymbolEqualityComparer.Default) ?? false);
 
-        DisposeAttribute disposeAttribute = GetDisposeAttributeOrDefault(attributeData);
+        DisposeAttribute? disposeAttribute = GetDisposeAttributeOrDefault(attributeData);
 
-        return new FieldOrPropertyToDispose(field.Name, false,
-            field.Locations.FirstOrDefault(),
-            field.Type,
-            fieldTypeImplementDisposable,
-            fieldTypeImplementAsyncDisposable,
-            disposeAttribute.SetToNull);
+        return disposeAttribute is null
+            ? null
+            : new FieldOrPropertyToDispose(field.Name, false,
+                field.Locations.FirstOrDefault(),
+                field.Type,
+                fieldTypeImplementDisposable,
+                fieldTypeImplementAsyncDisposable,
+                disposeAttribute.SetToNull);
     }
 
-    static FieldOrPropertyToDispose? GetProperty(IMethodSymbol property, INamedTypeSymbol? namedTypeSymbol) {
-        bool fieldTypeImplementDisposable = property.ReturnType.DoesImplementIDisposable();
-        bool fieldTypeImplementAsyncDisposable = property.ReturnType.DoesImplementIAsyncDisposable();
+    static FieldOrPropertyToDispose? GetProperty(IPropertySymbol property, INamedTypeSymbol? namedTypeSymbol) {
+        bool fieldTypeImplementDisposable = property.Type.DoesImplementIDisposable();
+        bool fieldTypeImplementAsyncDisposable = property.Type.DoesImplementIAsyncDisposable();
 
         if (!fieldTypeImplementAsyncDisposable && !fieldTypeImplementDisposable) {
             return null;
@@ -163,21 +165,23 @@ public class DisposableGenerator : IIncrementalGenerator {
         AttributeData? attributeData = property.GetAttributes()
             .FirstOrDefault(a => namedTypeSymbol?.Equals(a.AttributeClass, SymbolEqualityComparer.Default) ?? false);
 
-        DisposeAttribute disposeAttribute = GetDisposeAttributeOrDefault(attributeData);
+        DisposeAttribute? disposeAttribute = GetDisposeAttributeOrDefault(attributeData);
 
-        return new FieldOrPropertyToDispose(property.Name, false,
-            property.Locations.FirstOrDefault(),
-            property.ReturnType,
-            fieldTypeImplementDisposable,
-            fieldTypeImplementAsyncDisposable,
-            disposeAttribute.SetToNull);
+        return disposeAttribute is null 
+            ? null 
+            : new FieldOrPropertyToDispose(property.Name, false,
+                property.Locations.FirstOrDefault(),
+                property.Type,
+                fieldTypeImplementDisposable,
+                fieldTypeImplementAsyncDisposable,
+                disposeAttribute.SetToNull);
     }
 
     private static List<DisposableToGenerate> GetTypesToGenerate(
         Compilation compilation,
         IEnumerable<ClassDeclarationSyntax> classes,
         CancellationToken ct) {
-        List<DisposableToGenerate> classesToGenerate = new();
+        List<DisposableToGenerate> classesToGenerate = [];
         INamedTypeSymbol? disposableAttribute = compilation.GetTypeByMetadataName(DisposableAttributeName);
         INamedTypeSymbol? asyncDisposableAttribute = compilation.GetTypeByMetadataName(AsyncDisposableAttributeName);
         INamedTypeSymbol? disposeAttribute = compilation.GetTypeByMetadataName(DisposeAttributeName);
@@ -213,9 +217,10 @@ public class DisposableGenerator : IIncrementalGenerator {
 
             DisposableAttribute disposableValues = GetDisposableAttributeOrDefault(disposable);
 
-            List<FieldOrPropertyToDispose> list = new();
+            List<FieldOrPropertyToDispose> list = [];
 
-            IEnumerable<IFieldSymbol> fields = classSymbol.GetMembers().OfType<IFieldSymbol>();
+            var fields = classSymbol.GetMembers().OfType<IFieldSymbol>();
+
             foreach (IFieldSymbol field in fields) {
                 FieldOrPropertyToDispose? toDispose = GetField(field, disposeAttribute);
                 if (toDispose is not null) {
@@ -223,13 +228,11 @@ public class DisposableGenerator : IIncrementalGenerator {
                 }
             }
 
-            IEnumerable<IMethodSymbol> properties = classSymbol
+            var properties = classSymbol
                 .GetMembers()
-                .OfType<IPropertySymbol>()
-                .Select(x => x.GetMethod)
-                .OfType<IMethodSymbol>();
+                .OfType<IPropertySymbol>();
 
-            foreach (IMethodSymbol property in properties) {
+            foreach (IPropertySymbol property in properties) {
                 FieldOrPropertyToDispose? toDispose = GetProperty(property, disposeAttribute);
                 if (toDispose is not null) {
                     list.Add(toDispose.Value);
