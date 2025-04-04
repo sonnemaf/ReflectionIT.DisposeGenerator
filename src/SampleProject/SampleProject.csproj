@@ -10,7 +10,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\ReflectionIT.DisposeGenerator.Attributes\ReflectionIT.DisposeGenerator.Attributes.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="true" />
-		
 		<ProjectReference Include="..\ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 

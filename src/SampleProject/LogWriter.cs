@@ -2,7 +2,7 @@
 
 namespace Project;
 
-[Disposable(GenerateDisposeAsync = true)]
+[Disposable(GenerateDisposeAsync = true, ConfigureAwait = true, GenerateOnDisposedAsync = true)]
 public partial class LogWriter {
 
     [Dispose]
@@ -19,12 +19,12 @@ public partial class LogWriter {
 
     }
 
-    //private partial ValueTask OnDisposedAsync() {
-    //    return ValueTask.CompletedTask;
-    //}
+    partial void OnDisposed(bool disposing) {
+        
+    }
 
-    //private partial ValueTask OnDisposingAsync() {
-    //    return ValueTask.CompletedTask;
-    //}
+    protected virtual partial ValueTask OnDisposedAsyncCore() {
+        return ValueTask.CompletedTask;
+    }
 
 }

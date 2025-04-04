@@ -139,19 +139,19 @@ public static class SourceGenerationHelper {
               .AddStatementAndStartBlock($"{methodPrefix} async ValueTaskAlias DisposeAsyncCore()")
               //.AddStatementAndStartBlock("if (!IsDisposed)")
               //.AddEmptyLine()
-              .AddStatementsIf(disposableToGenerate.GenerateOnDisposingAsync, "", "await OnDisposingAsync();")
+              .AddStatementsIf(disposableToGenerate.GenerateOnDisposingAsync, "", $"await OnDisposingAsyncCore().ConfigureAwait({disposableToGenerate.ConfigureAwait.ToString().ToLower()});")
               .AddStatements(variablesName)
-              .AddStatementsIf(disposableToGenerate.GenerateOnDisposedAsync, "", "await OnDisposedAsync();")
+              .AddStatementsIf(disposableToGenerate.GenerateOnDisposedAsync, "", $"await OnDisposedAsyncCore().ConfigureAwait({disposableToGenerate.ConfigureAwait.ToString().ToLower()});")
               //.AddStatements("", "_isDisposed = true;")
               //.EndBlock()
               .EndBlock();
 
         if (disposableToGenerate.GenerateOnDisposingAsync) {
-            builder.AddStatements($"private partial ValueTaskAlias OnDisposingAsync();");
+            builder.AddStatements($"{methodPrefix} partial ValueTaskAlias OnDisposingAsyncCore();");
         }
 
         if (disposableToGenerate.GenerateOnDisposedAsync) {
-            builder.AddStatements($"private partial ValueTaskAlias OnDisposedAsync();");
+            builder.AddStatements($"{methodPrefix} partial ValueTaskAlias OnDisposedAsyncCore();");
         }
 
 
@@ -196,9 +196,13 @@ public static class SourceGenerationHelper {
         namespace ReflectionIT.DisposeGenerator.Attributes {
 
             /// <summary>
-            /// An attribute that indicates that for this type code is generated for the <see cref="https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/dispose-pattern">Dispose pattern</see>
-            /// <see cref="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose">Implement a Dispose method</seealso>
-            /// <see cref="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-disposeasync">Implement a DisposeAsync method</seealso>
+            /// An attribute that indicates that for this type code is generated for the <see href="https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/dispose-pattern">Dispose pattern</see>
+            /// <para>
+            /// For more info about the Dispose pattern please read:
+            /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose">Implement a Dispose method</see>
+            /// and
+            /// <see href="https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-disposeasync">Implement a DisposeAsync method</see>
+            /// </para>
             /// </summary>
             [global::System.AttributeUsage(global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
             public class DisposableAttribute : Attribute
