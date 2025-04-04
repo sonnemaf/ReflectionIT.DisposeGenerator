@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+    <File Path="version.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Disposer.Attributes/ReflectionIT.DisposeGenerator.Attributes.csproj" />
+    <Project Path="src/Disposer/ReflectionIT.DisposeGenerator.csproj" />
+  </Folder>
+  <Project Path="src/SampleProject/SampleProject.csproj" />
+</Solution>
