@@ -102,8 +102,11 @@ public static class SourceGenerationHelper {
 
     private static void AddDisposeBooleanLogic(this ICsFileBuilder builder, DisposableToGenerate disposableToGenerate) {
         string methodPrefix = disposableToGenerate.IsSealed ? "private" : "protected virtual";
+
         string[] variablesName = disposableToGenerate.FieldsOrProperties
             .Select(x => GetDisposeStatement(x, false, false)).ToArray();
+
+        string[] nullNameStatements = GetSetNullStatements(disposableToGenerate);
 
         builder.AddGeneratedAttributes(GeneratorName)
                .AddStatementAndStartBlock($"{methodPrefix} void Dispose(bool disposing)")
@@ -113,12 +116,18 @@ public static class SourceGenerationHelper {
                .AddStatementAndStartBlock("if (disposing)")
                .AddStatements(variablesName)
                .EndBlock()
+               .AddStatementsIf(disposableToGenerate.HasUnmangedResources, "ReleaseUnmangedResources();")
+               .AddStatements(nullNameStatements)
                .AddStatements("", "OnDisposed(disposing);")
                .AddStatements("", "_isDisposed = true;")
                .EndBlock();
 
         builder.AddStatements($"partial void OnDisposing(bool disposing);");
         builder.AddStatements($"partial void OnDisposed(bool disposing);");
+
+        if (disposableToGenerate.HasUnmangedResources) {
+            builder.AddStatements($"partial void ReleaseUnmangedResources();");
+        }
 
     }
 
@@ -128,11 +137,13 @@ public static class SourceGenerationHelper {
         string[] variablesName = disposableToGenerate.FieldsOrProperties
             .Select(x => GetDisposeStatement(x, true, disposableToGenerate.ConfigureAwait)).ToArray();
 
+        string[] nullNameStatements = GetSetNullStatements(disposableToGenerate);
+
         builder.AddGeneratedAttributes(GeneratorName)
                .AddStatementAndStartBlock($"public async ValueTaskAlias DisposeAsync()")
-               .AddStatements("", $"await DisposeAsyncCore().ConfigureAwait({disposableToGenerate.ConfigureAwait.ToString().ToLower()}); // Perform async cleanup.")
-               .AddStatements("", "Dispose(false); // Dispose of unmanaged resources.")
-               .AddStatements("", "global::System.GC.SuppressFinalize(this);")
+               .AddStatements($"await DisposeAsyncCore().ConfigureAwait({disposableToGenerate.ConfigureAwait.ToString().ToLower()}); // Perform async cleanup.")
+               .AddStatementsIf(disposableToGenerate.HasUnmangedResources, "Dispose(false); // Dispose of unmanaged resources.")
+               .AddStatements("global::System.GC.SuppressFinalize(this);")
                .EndBlock()
                .AddEmptyLine();
 
@@ -142,6 +153,7 @@ public static class SourceGenerationHelper {
               //.AddEmptyLine()
               .AddStatementsIf(disposableToGenerate.GenerateOnDisposingAsync, "", $"await OnDisposingAsyncCore().ConfigureAwait({disposableToGenerate.ConfigureAwait.ToString().ToLower()});")
               .AddStatements(variablesName)
+              .AddStatements(nullNameStatements)
               .AddStatementsIf(disposableToGenerate.GenerateOnDisposedAsync, "", $"await OnDisposedAsyncCore().ConfigureAwait({disposableToGenerate.ConfigureAwait.ToString().ToLower()});")
               //.AddStatements("", "_isDisposed = true;")
               //.EndBlock()
@@ -158,6 +170,12 @@ public static class SourceGenerationHelper {
 
     }
 
+    private static string[] GetSetNullStatements(DisposableToGenerate disposableToGenerate) {
+        return disposableToGenerate.FieldsOrProperties
+                    .Where(x => x.SetToNull)
+                    .Select(x => $"{x.Name} = null;").ToArray();
+    }
+
     public static string GetDisposeStatement(FieldOrPropertyToDispose fieldOrProperty, bool isAsync, bool configureAwait) {
         string needAwait = isAsync ? "await" : string.Empty;
         string needAsync = isAsync ? $"Async().ConfigureAwait({configureAwait.ToString().ToLower()})" : "()";
@@ -172,9 +190,7 @@ public static class SourceGenerationHelper {
                 if ({fieldOrProperty.Name} is global::System.I{disposeType}Disposable @{localVar}) {needAwait} @{localVar}.Dispose{needAsync}; 
                 """;
 
-        string setToNullStatement = fieldOrProperty.SetToNull ? $"\r\n{fieldOrProperty.Name} = null;" : "";
-
-        return $"{disposeStatement}{setToNullStatement}";
+        return $"{disposeStatement}";
     }
 
 #pragma warning disable IDE1006 // Naming Styles

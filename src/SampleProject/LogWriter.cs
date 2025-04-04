@@ -2,8 +2,10 @@
 
 namespace SampleProject;
 
-[Disposable(GenerateDisposeAsync = true, ConfigureAwait = true, GenerateOnDisposedAsync = true)]
+[Disposable(GenerateDisposeAsync = true, ConfigureAwait = true, GenerateOnDisposedAsync = true, HasUnmangedResources = true)]
 public partial class LogWriter {
+
+    private readonly string _path;
 
     [Dispose(SetToNull = true)]
     private StreamWriter? _streamWriter1;
@@ -15,6 +17,7 @@ public partial class LogWriter {
     //private StreamWriter? _streamWriter3;
 
     public LogWriter(string path) {
+        _path = path;
         _streamWriter1 = new StreamWriter(path);
         StreamWriter2 = new StreamWriter($"path{2}");
         //_streamWriter3 = new StreamWriter(path);
@@ -37,5 +40,9 @@ public partial class LogWriter {
         return ValueTask.CompletedTask;
     }
 
+
+    partial void ReleaseUnmangedResources() {
+        throw new NotImplementedException();
+    }
 
 }
