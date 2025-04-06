@@ -42,7 +42,7 @@ public partial class LogWriter {
 
 
     partial void ReleaseUnmangedResources() {
-        throw new NotImplementedException();
+        //throw new NotImplementedException();
     }
 
 }
