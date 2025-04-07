@@ -2,16 +2,18 @@
 
 namespace SampleProject;
 
-[Disposable(GenerateDisposeAsync = true, ConfigureAwait = true, GenerateOnDisposedAsync = true, HasUnmangedResources = true)]
+[Disposable(Mode = DisposeMode.Auto, GenerateDisposeAsync = true, ConfigureAwait = true, GenerateOnDisposedAsync = true, HasUnmangedResources = true)]
 public partial class LogWriter {
 
+    //[Dispose(SetToNull = true)]
     private readonly string _path;
 
-    [Dispose(SetToNull = true)]
+    //[Dispose(SetToNull = true)]
     private StreamWriter? _streamWriter1;
 
-    [Dispose(SetToNull = false)]
-    private StreamWriter StreamWriter2 { get; }
+    //[Dispose(SetToNull = false, Ignore = true)]
+    //[Dispose(SetToNull = false)]
+    public StreamWriter StreamWriter2 { get; }
 
     //[Dispose]
     //private StreamWriter? _streamWriter3;

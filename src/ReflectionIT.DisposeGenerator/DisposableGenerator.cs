@@ -75,6 +75,7 @@ public class DisposableGenerator : IIncrementalGenerator {
         }
 
         foreach (DisposableToGenerate classToGenerate in classesToGenerate) {
+
             foreach (FieldOrPropertyToDispose fieldOrProperty in classToGenerate.FieldsOrProperties) {
                 if (!fieldOrProperty.ImplementIAsyncDisposable && !fieldOrProperty.ImplementDisposable) {
                     context.ReportDiagnostic(Diagnostic.Create(
@@ -92,7 +93,9 @@ public class DisposableGenerator : IIncrementalGenerator {
                     return;
                 }
             }
+            
             string result = SourceGenerationHelper.ImplementDisposablePattern(classToGenerate);
+
             context.AddSource(classToGenerate.Name + "Disposable.g.cs", SourceText.From(result, Encoding.UTF8));
         }
     }
@@ -144,14 +147,13 @@ public class DisposableGenerator : IIncrementalGenerator {
 
         DisposeAttribute? disposeAttribute = GetDisposeAttributeOrDefault(attributeData);
 
-        return disposeAttribute is null
-            ? null
-            : new FieldOrPropertyToDispose(field.Name, false,
+        return field.Name.Contains('<') ? null :
+            new FieldOrPropertyToDispose(field.Name, false,
                 field.Locations.FirstOrDefault(),
                 field.Type,
                 fieldTypeImplementDisposable,
                 fieldTypeImplementAsyncDisposable,
-                disposeAttribute.SetToNull);
+                disposeAttribute?.SetToNull ?? false);
     }
 
     static FieldOrPropertyToDispose? GetProperty(IPropertySymbol property, INamedTypeSymbol? namedTypeSymbol) {
@@ -167,14 +169,12 @@ public class DisposableGenerator : IIncrementalGenerator {
 
         DisposeAttribute? disposeAttribute = GetDisposeAttributeOrDefault(attributeData);
 
-        return disposeAttribute is null 
-            ? null 
-            : new FieldOrPropertyToDispose(property.Name, false,
+        return new FieldOrPropertyToDispose(property.Name, false,
                 property.Locations.FirstOrDefault(),
                 property.Type,
                 fieldTypeImplementDisposable,
                 fieldTypeImplementAsyncDisposable,
-                disposeAttribute.SetToNull);
+                disposeAttribute?.SetToNull ?? false);
     }
 
     private static List<DisposableToGenerate> GetTypesToGenerate(

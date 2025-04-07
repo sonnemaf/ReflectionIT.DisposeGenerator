@@ -10,8 +10,7 @@
 /// </para>
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = false)]
-public class DisposableAttribute : Attribute
-{
+public class DisposableAttribute : Attribute {
     /// <summary>
     /// Generates a Destructor which calls Dispose(false) if set to True
     /// </summary>
@@ -36,4 +35,15 @@ public class DisposableAttribute : Attribute
     /// Use ConfigureAwait(false or true) on async method calls
     /// </summary>
     public bool ConfigureAwait { get; set; }
+
+    public DisposeMode Mode { get; set; } = DisposeMode.Auto;
+}
+
+[Flags]
+public enum DisposeMode {
+    None = 0b0001,
+    Auto = 0b0001,
+    Sync = 0b0010,
+    Async = 0b0100,
+    SyncAndAsync = Sync & Async,
 }
