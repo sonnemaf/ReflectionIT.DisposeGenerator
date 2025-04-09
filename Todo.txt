@@ -1,0 +1,5 @@
+Todo:
+- Record support
+- Struct support
+- Write Xml Comments
+- Inheritance support

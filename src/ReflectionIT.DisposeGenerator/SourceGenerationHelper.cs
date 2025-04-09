@@ -17,8 +17,10 @@ public static class SourceGenerationHelper {
                          .AddEmptyLine();
         }
 
-        csFileBuilder.AddNamespace(classToGenerate.Namespace, true);
-
+        bool hasNamespace = !string.IsNullOrEmpty(classToGenerate.Namespace);
+        if (hasNamespace) {
+            csFileBuilder.AddNamespace(classToGenerate.Namespace, true);
+        }
         GenerateBaseImplementation(csFileBuilder, classToGenerate);
 
         if (classToGenerate.ImplementDisposable) {
@@ -29,7 +31,9 @@ public static class SourceGenerationHelper {
             GenerateDisposableImplementation(csFileBuilder, "IAsyncDisposable", true, classToGenerate);
         }
 
-        csFileBuilder.EndNamespace();
+        if (hasNamespace) {
+            csFileBuilder.EndNamespace();
+        }
 
         return csFileBuilder.Build();
     }
