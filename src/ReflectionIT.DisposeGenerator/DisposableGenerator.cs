@@ -10,13 +10,10 @@ namespace ReflectionIT.DisposeGenerator;
 
 [Generator]
 public class DisposableGenerator : IIncrementalGenerator {
-    private const string DisposableAttributeName = "ReflectionIT.DisposeGenerator.Attributes.DisposableAttribute";
-    private const string AsyncDisposableAttributeName = "ReflectionIT.DisposeGenerator.Attributes.AsyncDisposableAttribute";
-    private const string DisposeAttributeName = "ReflectionIT.DisposeGenerator.Attributes.DisposeAttribute";
 
     public void Initialize(IncrementalGeneratorInitializationContext context) {
         context.RegisterPostInitializationOutput(ctx => ctx.AddSource(
-            "DisposerAttributes.g.cs", SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8)));
+            "DisposeGenerator.Attributes.g.cs", SourceText.From(SourceGenerationHelper.Attribute, Encoding.UTF8)));
 
         IncrementalValuesProvider<ClassDeclarationSyntax> classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
@@ -50,7 +47,7 @@ public class DisposableGenerator : IIncrementalGenerator {
                 string fullName = attributeContainingTypeSymbol.ToDisplayString();
 
                 // Is the attribute the [Disposable] attribute?
-                if (fullName is DisposableAttributeName or AsyncDisposableAttributeName) {
+                if (fullName == typeof(DisposableAttribute).FullName) {
                     // return the class
                     return classDeclarationSyntax;
                 }
@@ -82,7 +79,7 @@ public class DisposableGenerator : IIncrementalGenerator {
                         new DiagnosticDescriptor(
                             "DISPOSER-0001",
                             "Non-void method return type",
-                            $"The type '{0}' of {1} '{2}' does not implement System.IDisposable nor System.IAsyncDisposable. {DisposeAttributeName} must be attached only to fields or properties that implements System.IDisposable or System.IAsyncDisposable",
+                            $"The type '{0}' of {1} '{2}' does not implement System.IDisposable nor System.IAsyncDisposable. {typeof(DisposableAttribute).FullName} must be attached only to fields or properties that implements System.IDisposable or System.IAsyncDisposable",
                     "Disposer", DiagnosticSeverity.Error,
                     true),
                         fieldOrProperty.Location,
@@ -182,11 +179,10 @@ public class DisposableGenerator : IIncrementalGenerator {
         IEnumerable<ClassDeclarationSyntax> classes,
         CancellationToken ct) {
         List<DisposableToGenerate> classesToGenerate = [];
-        INamedTypeSymbol? disposableAttribute = compilation.GetTypeByMetadataName(DisposableAttributeName);
-        INamedTypeSymbol? asyncDisposableAttribute = compilation.GetTypeByMetadataName(AsyncDisposableAttributeName);
-        INamedTypeSymbol? disposeAttribute = compilation.GetTypeByMetadataName(DisposeAttributeName);
+        INamedTypeSymbol? disposableAttribute = compilation.GetTypeByMetadataName(typeof(DisposableAttribute).FullName);
+        INamedTypeSymbol? disposeAttribute = compilation.GetTypeByMetadataName(typeof(DisposeAttribute).FullName);
 
-        if (disposableAttribute == null && asyncDisposableAttribute == null) {
+        if (disposableAttribute is null) {
             // nothing to do if this type isn't available
             return classesToGenerate;
         }
@@ -206,12 +202,10 @@ public class DisposableGenerator : IIncrementalGenerator {
             bool isSealed = classSymbol.IsSealed;
 
             AttributeData? disposable = classSymbol.GetAttributes().FirstOrDefault(a => disposableAttribute?.Equals(a.AttributeClass, SymbolEqualityComparer.Default) ?? false);
-            AttributeData? asyncDisposable = classSymbol.GetAttributes().FirstOrDefault(a => asyncDisposableAttribute?.Equals(a.AttributeClass, SymbolEqualityComparer.Default) ?? false);
 
             bool hasDisposable = disposable is not null;
-            bool hasAsyncDisposable = asyncDisposable is not null;
 
-            if (hasDisposable is false && hasAsyncDisposable is false) {
+            if (!hasDisposable) {
                 continue;
             }
 
