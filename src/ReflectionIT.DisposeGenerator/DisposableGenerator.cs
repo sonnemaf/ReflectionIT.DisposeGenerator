@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -66,12 +65,12 @@ public class DisposableGenerator : IIncrementalGenerator {
 
         IEnumerable<ClassDeclarationSyntax> distinctClasses = classes.Distinct();
 
-        List<DisposableToGenerate> classesToGenerate = GetTypesToGenerate(compilation, distinctClasses, context.CancellationToken);
+        List<TypeToGenerate> classesToGenerate = GetTypesToGenerate(compilation, distinctClasses, context.CancellationToken);
         if (classesToGenerate.Count == 0) {
             return;
         }
 
-        foreach (DisposableToGenerate classToGenerate in classesToGenerate) {
+        foreach (TypeToGenerate classToGenerate in classesToGenerate) {
 
             foreach (FieldOrPropertyToDispose fieldOrProperty in classToGenerate.FieldsOrProperties) {
                 if (!fieldOrProperty.ImplementIAsyncDisposable && !fieldOrProperty.ImplementDisposable) {
@@ -93,7 +92,7 @@ public class DisposableGenerator : IIncrementalGenerator {
             
             string result = SourceGenerationHelper.ImplementDisposablePattern(classToGenerate);
 
-            context.AddSource(classToGenerate.Name + "Disposable.g.cs", SourceText.From(result, Encoding.UTF8));
+            context.AddSource($"{classToGenerate.FullName}.g.cs", SourceText.From(result, Encoding.UTF8));
         }
     }
 
@@ -174,11 +173,11 @@ public class DisposableGenerator : IIncrementalGenerator {
                 disposeAttribute?.SetToNull ?? false);
     }
 
-    private static List<DisposableToGenerate> GetTypesToGenerate(
+    private static List<TypeToGenerate> GetTypesToGenerate(
         Compilation compilation,
         IEnumerable<ClassDeclarationSyntax> classes,
         CancellationToken ct) {
-        List<DisposableToGenerate> classesToGenerate = [];
+        List<TypeToGenerate> classesToGenerate = [];
         INamedTypeSymbol? disposableAttribute = compilation.GetTypeByMetadataName(typeof(DisposableAttribute).FullName);
         INamedTypeSymbol? disposeAttribute = compilation.GetTypeByMetadataName(typeof(DisposeAttribute).FullName);
 
@@ -233,7 +232,7 @@ public class DisposableGenerator : IIncrementalGenerator {
                 }
             }
 
-            classesToGenerate.Add(new DisposableToGenerate(
+            classesToGenerate.Add(new TypeToGenerate(
                      name: name,
                      ns: nameSpace,
                      hasUnmangedResources: disposableValues.HasUnmangedResources,

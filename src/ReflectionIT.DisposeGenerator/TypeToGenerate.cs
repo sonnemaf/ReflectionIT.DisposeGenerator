@@ -1,9 +1,9 @@
 namespace ReflectionIT.DisposeGenerator;
 
-public readonly struct DisposableToGenerate
+public readonly struct TypeToGenerate
 {
     public readonly string Name;
-    public readonly string Namespace;
+    public readonly string? Namespace;
     public readonly bool HasUnmangedResources;
     public readonly bool IsSealed;
     public readonly bool ImplementDisposable;
@@ -13,7 +13,7 @@ public readonly struct DisposableToGenerate
     public readonly bool GenerateOnDisposedAsync;
     public readonly bool ConfigureAwait;
 
-    public DisposableToGenerate(
+    public TypeToGenerate(
         string name,
         string ns,
         bool hasUnmangedResources,
@@ -36,4 +36,7 @@ public readonly struct DisposableToGenerate
         GenerateOnDisposedAsync = generateOnDisposedAsync;
         ConfigureAwait = configureAwait;
     }
+
+    public string FullName => string.IsNullOrEmpty(Namespace) ? Name : $"{Namespace}.{Name}";
+
 }
