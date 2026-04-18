@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="directory.build.props" />
+    <File Path="LICENSE.txt" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="ConsoleApp1/ConsoleApp1.csproj" />
+  <Project Path="ReflectionIT.DisposeGenerator.Attributes/ReflectionIT.DisposeGenerator.Attributes.csproj" Id="4ef20927-c0f8-482c-b1c2-a991535d4b84" />
+  <Project Path="ReflectionIT.DisposeGenerator.Tests/ReflectionIT.DisposeGenerator.Tests.csproj" />
+  <Project Path="ReflectionIT.DisposeGenerator/ReflectionIT.DisposeGenerator.csproj" />
+</Solution>

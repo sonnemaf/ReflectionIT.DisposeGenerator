@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RoslynSourceGen": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\ConsoleApp1\\ConsoleApp1.csproj"
+    }
+  }
+}

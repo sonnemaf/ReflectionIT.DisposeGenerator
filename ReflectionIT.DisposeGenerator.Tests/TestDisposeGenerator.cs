@@ -1,0 +1,176 @@
+﻿using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Testing;
+using Microsoft.CodeAnalysis.Testing;
+
+namespace ReflectionIT.DisposeGenerator.Tests;
+
+public class TestDisposeGenerator {
+
+    [Fact]
+    public async Task TestDisposeProperty() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+                
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable(IsThreadSafe = true)]
+                    public partial class LogWriter : IDisposable {
+
+                        [Dispose(setToNull: false)]
+                        private StreamWriter StreamWriter { get; }
+
+                        public LogWriter(string path) => StreamWriter = new StreamWriter(path);
+
+                        public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+
+                    }
+                }
+                """,
+        };
+
+        // List of expected generated sources
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
+            $$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial class LogWriter
+                    {
+                        public void Dispose() {
+                            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                            Dispose(disposing: true);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+                        private bool _disposedValue;
+                        protected virtual void Dispose(bool disposing) {
+                            if (!_disposedValue) {
+                                if (disposing) {
+                                    StreamWriter?.Dispose();
+                                }
+                                _disposedValue = true;
+                            }
+                        }
+                    }
+                }
+
+                """));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    [Fact]
+    public async Task TestDisposeField() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+                
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable(IsThreadSafe = true)]
+                    public partial class LogWriter : IDisposable {
+
+                        [Dispose(setToNull: true)]
+                        private StreamWriter _streamWriter;
+
+                        public LogWriter(string path) => _streamWriter = new StreamWriter(path);
+
+                        public void WriteLine(string text) => _streamWriter.WriteLine($"{DateTime.Now}\t{text}");
+
+                    }
+                }
+                """,
+        };
+
+        // List of expected generated sources
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
+            $$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial class LogWriter
+                    {
+                        public void Dispose() {
+                            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                            Dispose(disposing: true);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+                        private bool _disposedValue;
+                        protected virtual void Dispose(bool disposing) {
+                            if (!_disposedValue) {
+                                if (disposing) {
+                                    _streamWriter?.Dispose();
+                                }
+                                _streamWriter = null;
+                                _disposedValue = true;
+                            }
+                        }
+                    }
+                }
+
+                """));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    public const string HEADER_CODE = """
+        //------------------------------------------------------------------------------
+        // <auto-generated>
+        //     This code was generated by the ReflectionIT.DisposeGenerator source generator
+        //     Changes to this file may cause incorrect behavior and will be lost if
+        //     the code is regenerated.
+        // </auto-generated>
+        //------------------------------------------------------------------------------
+        #pragma warning disable
+        #nullable enable annotations
+
+        """;
+
+
+    public const string ATTRIBUTE_CODE = """
+            namespace ReflectionIT.DisposeGenerator.Attributes {
+            
+                [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
+                public class DisposableAttribute : Attribute {
+                    public bool IsThreadSafe { get; set; }
+                }
+
+                [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+                public class DisposeAttribute : Attribute {
+                    public bool SetToNull { get; }
+                    public DisposeAttribute(bool setToNull = false) {
+                        SetToNull = setToNull;
+                    }
+                }
+            }
+            """;
+
+    public const string ATTRIBUTE_CODE_IN_TEST = $$"""
+            using System;
+            using ReflectionIT.DisposeGenerator.Attributes;
+            
+            {{ATTRIBUTE_CODE}}
+            
+            """;
+
+}
