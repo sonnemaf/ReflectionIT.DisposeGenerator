@@ -2,6 +2,10 @@
 
 A source generator package that generates the Dispose pattern
 
+- https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/dispose-pattern 
+- https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose 
+
+
 # NuGet package
 
 | Package | Version |
@@ -38,14 +42,14 @@ partial class LogWriter
         global::System.GC.SuppressFinalize(this);
     }
 
-    private bool _disposedValue;
+    private bool _isDisposed;
 
     protected virtual void Dispose(bool disposing) {
-        if (!_disposedValue) {
+        if (!_isDisposed) {
             if (disposing) {
                 StreamWriter?.Dispose();
             }
-            _disposedValue = true;
+            _isDisposed = true;
         }
     }
 }

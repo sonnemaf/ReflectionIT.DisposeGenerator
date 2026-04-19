@@ -37,8 +37,8 @@ public sealed class CsFileBuilder : ICsFileBuilder {
     }
 
     public ICsFileBuilder AddNamespace(INamespaceSymbol namespaceSymbol) {
-        return namespaceSymbol.IsGlobalNamespace 
-            ? this 
+        return namespaceSymbol.IsGlobalNamespace
+            ? this
             : AddNamespace(namespaceSymbol.ToDisplayString());
     }
 
@@ -61,9 +61,10 @@ public sealed class CsFileBuilder : ICsFileBuilder {
 
     public ICsFileBuilder AddStatements(params ReadOnlySpan<string> lines) {
         foreach (string line in lines) {
-            _indentedTextWriter.WriteLine(line);
+            if (!string.IsNullOrWhiteSpace(line)) {
+                _indentedTextWriter.WriteLine(line);
+            }
         }
-
         return this;
     }
 
@@ -155,12 +156,9 @@ public sealed class CsFileBuilder : ICsFileBuilder {
     }
 
     /// <summary>
-    /// Add the following attributes
-    /// <code>
-    /// [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
+    /// Add the following attributes <code> [global::System.CodeDom.Compiler.GeneratedCode("...", "...")]
     /// [global::System.Diagnostics.DebuggerNonUserCode]
-    /// [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    /// </code>
+    /// [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage] </code>
     /// </summary>
     /// <param name="writer">The <see cref="IndentedTextWriter"/> instance to write into.</param>
     /// <param name="generatorName">The name of the generator.</param>

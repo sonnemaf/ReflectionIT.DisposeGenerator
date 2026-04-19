@@ -1,6 +1,6 @@
 ﻿namespace ConsoleApp1;
 
-[Disposable]
+[Disposable(IsThreadSafe = true)]
 public partial class LogWriter : IDisposable {
 
     [Dispose]

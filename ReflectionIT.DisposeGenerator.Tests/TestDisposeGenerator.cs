@@ -18,10 +18,10 @@ public class TestDisposeGenerator {
 
                 namespace X {
 
-                    [Disposable(IsThreadSafe = true)]
+                    [Disposable]
                     public partial class LogWriter : IDisposable {
 
-                        [Dispose(setToNull: false)]
+                        [Dispose]
                         private StreamWriter StreamWriter { get; }
 
                         public LogWriter(string path) => StreamWriter = new StreamWriter(path);
@@ -46,13 +46,13 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
-                        private bool _disposedValue;
+                        private bool _isDisposed;
                         protected virtual void Dispose(bool disposing) {
-                            if (!_disposedValue) {
+                            if (!_isDisposed) {
                                 if (disposing) {
                                     StreamWriter?.Dispose();
                                 }
-                                _disposedValue = true;
+                                _isDisposed = true;
                             }
                         }
                     }
@@ -81,10 +81,10 @@ public class TestDisposeGenerator {
 
                 namespace X {
 
-                    [Disposable(IsThreadSafe = true)]
+                    [Disposable]
                     public partial class LogWriter : IDisposable {
 
-                        [Dispose(setToNull: true)]
+                        [Dispose(true)]
                         private StreamWriter _streamWriter;
 
                         public LogWriter(string path) => _streamWriter = new StreamWriter(path);
@@ -109,14 +109,75 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
-                        private bool _disposedValue;
+                        private bool _isDisposed;
                         protected virtual void Dispose(bool disposing) {
-                            if (!_disposedValue) {
+                            if (!_isDisposed) {
                                 if (disposing) {
                                     _streamWriter?.Dispose();
                                 }
                                 _streamWriter = null;
-                                _disposedValue = true;
+                                _isDisposed = true;
+                            }
+                        }
+                    }
+                }
+
+                """));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    [Fact]
+    public async Task TestThreadSafeDispose() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+                
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable(IsThreadSafe = true)]
+                    public partial class LogWriter : IDisposable {
+
+                        [Dispose]
+                        private StreamWriter StreamWriter { get; }
+
+                        public LogWriter(string path) => StreamWriter = new StreamWriter(path);
+
+                        public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+                    }
+                }
+                """,
+        };
+
+        // List of expected generated sources
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
+            $$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial class LogWriter
+                    {
+                        public void Dispose() {
+                            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                            Dispose(disposing: true);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+                        private int _isDisposed;
+                        protected virtual void Dispose(bool disposing) {
+                            if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) == 0) {
+                                if (disposing) {
+                                    StreamWriter?.Dispose();
+                                }
                             }
                         }
                     }
