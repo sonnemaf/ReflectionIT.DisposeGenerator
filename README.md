@@ -9,14 +9,13 @@ Planned future support includes the async dispose pattern and unmanaged resource
 
 https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-disposeasync
 
-
-# NuGet package
+## NuGet package
 
 | Package | Version |
 | ------ | ------ |
 | ReflectionIT.DisposeGenerator | [![NuGet](https://img.shields.io/nuget/v/ReflectionIT.DisposeGenerator)](https://www.nuget.org/packages/ReflectionIT.DisposeGenerator/) |         
 
-## Example
+## Usage
 
 Install the NuGet package, then annotate a class or struct with the ```Disposable``` attribute.
 
