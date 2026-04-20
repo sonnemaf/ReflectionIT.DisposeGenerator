@@ -3,7 +3,7 @@
 [Disposable]
 public sealed partial class LogWriterWithField : IDisposable {
 
-    [Dispose(setToNull: true)]
+    [Dispose(SetToNull = true)]
     private StreamWriter _streamWriter;
 
     public LogWriterWithField(string path) => _streamWriter = new StreamWriter(path);

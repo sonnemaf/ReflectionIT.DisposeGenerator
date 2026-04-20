@@ -7,6 +7,106 @@ namespace ReflectionIT.DisposeGenerator.Tests;
 public class TestDisposeGenerator {
 
     [Fact]
+    public async Task TestDisposableDerived() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+                
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable]
+                    public partial class LogWriter : IDisposable {
+
+                        [Dispose]
+                        private StreamWriter StreamWriter { get; }
+
+                        public LogWriter(string path) => StreamWriter = new StreamWriter(path);
+
+                        public virtual void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+
+                    }
+
+                    [Disposable(OverrideDispose = true)]
+                    public partial class SecondLogWriter : LogWriter {
+                
+                        [Dispose]
+                        private StreamWriter SecondStreamWriter { get; }
+                
+                        public SecondLogWriter(string path) : base(path) => SecondStreamWriter = new StreamWriter(path);
+                
+                        public override void WriteLine(string text) {
+                            base.WriteLine(text);
+                            SecondStreamWriter.WriteLine($"{DateTime.Now}\t{text.ToUpper()}");
+                        }
+                    }
+                }
+                """,
+        };
+
+        // List of expected generated sources
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
+            $$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial class LogWriter
+                    {
+                        public void Dispose() {
+                            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                            Dispose(disposing: true);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+                        private bool _isDisposed;
+                        protected virtual void Dispose(bool disposing) {
+                            if (!_isDisposed) {
+                                if (disposing) {
+                                    StreamWriter?.Dispose();
+                                }
+                                _isDisposed = true;
+                            }
+                        }
+                    }
+                }
+
+                """));
+
+        // List of expected generated sources
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.SecondLogWriter.g.cs",
+            $$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial class SecondLogWriter
+                    {
+                        private bool _isDisposed;
+                        protected override void Dispose(bool disposing) {
+                            if (!_isDisposed) {
+                                if (disposing) {
+                                    SecondStreamWriter?.Dispose();
+                                }
+                                _isDisposed = true;
+                            }
+                            base.Dispose(disposing);
+                        }
+                    }
+                }
+
+                """));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    [Fact]
     public async Task TestDisposeProperty() {
         var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
             ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
@@ -84,7 +184,7 @@ public class TestDisposeGenerator {
                     [Disposable]
                     public partial class LogWriter : IDisposable {
 
-                        [Dispose(true)]
+                        [Dispose(SetToNull = true)]
                         private StreamWriter _streamWriter;
 
                         public LogWriter(string path) => _streamWriter = new StreamWriter(path);
@@ -213,15 +313,13 @@ public class TestDisposeGenerator {
             
                 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
                 public class DisposableAttribute : Attribute {
+                    public bool OverrideDispose { get; set; }
                     public bool IsThreadSafe { get; set; }
                 }
 
                 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
                 public class DisposeAttribute : Attribute {
-                    public bool SetToNull { get; }
-                    public DisposeAttribute(bool setToNull = false) {
-                        SetToNull = setToNull;
-                    }
+                    public bool SetToNull { get; set;}
                 }
             }
             """;

@@ -59,8 +59,8 @@ public sealed class CsFileBuilder : ICsFileBuilder {
         return this;
     }
 
-    public ICsFileBuilder AddStatements(params ReadOnlySpan<string> lines) {
-        foreach (string line in lines) {
+    public ICsFileBuilder AddStatements(params ReadOnlySpan<string?> lines) {
+        foreach (string? line in lines) {
             if (!string.IsNullOrWhiteSpace(line)) {
                 _indentedTextWriter.WriteLine(line);
             }

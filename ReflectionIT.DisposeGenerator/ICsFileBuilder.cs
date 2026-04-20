@@ -13,7 +13,7 @@ public interface ICsFileBuilder : IDisposable {
     ICsFileBuilder AddCommentLine(string line);
     ICsFileBuilder AddXmlCommentLines(params ReadOnlySpan<string> lines);
     ICsFileBuilder AddEmptyLine(bool condition = true);
-    ICsFileBuilder AddStatements(params ReadOnlySpan<string> lines);
+    ICsFileBuilder AddStatements(params ReadOnlySpan<string?> lines);
     ICsFileBuilder AddStatementsIf(bool condition, params ReadOnlySpan<string> lines);
     ICsFileBuilder AddStatementAndStartBlock(string line);
     ICsFileBuilder AddIfBlock(string condition, params ReadOnlySpan<string> lines);

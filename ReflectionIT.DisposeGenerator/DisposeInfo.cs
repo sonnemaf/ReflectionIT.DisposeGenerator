@@ -21,6 +21,6 @@ internal class DisposeInfo {
         var attribute = symbol.GetAttributes()
              .First(a => a.AttributeClass?.ToDisplayString() == typeof(DisposeAttribute).FullName);
 
-        SetToNull = attribute.ConstructorArguments[0].ToCSharpString() == "true";
+        SetToNull = attribute.NamedArguments.FirstOrDefault(n => n.Key == nameof(DisposeAttribute.SetToNull)).Value.ToCSharpString() == "true";
     }
 }

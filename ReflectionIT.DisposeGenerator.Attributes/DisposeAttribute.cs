@@ -3,10 +3,6 @@
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
 public class DisposeAttribute : Attribute {
 
-    public bool SetToNull { get; }
-
-    public DisposeAttribute(bool setToNull = false) {
-        SetToNull = setToNull;
-    }
+    public bool SetToNull { get; set; }
 
 }
