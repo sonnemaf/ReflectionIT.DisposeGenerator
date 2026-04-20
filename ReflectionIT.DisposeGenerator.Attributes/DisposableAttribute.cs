@@ -8,4 +8,7 @@ public class DisposableAttribute : Attribute {
     public bool ExplicitInterfaceImplementation { get; set; }
 
     public bool IsThreadSafe { get; set; }
+
+    public bool HasUnmanagedResources { get; set; }
+
 }

@@ -5,7 +5,7 @@ A source generator package that implements the Dispose pattern.
 - https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/dispose-pattern 
 - https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose 
 
-Planned future support includes the async dispose pattern and unmanaged resources.
+Planned future support includes the async dispose pattern.
 
 https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-disposeasync
 
@@ -19,7 +19,7 @@ https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementin
 
 Install the NuGet package, then annotate a class or struct with the ```Disposable``` attribute.
 
-Annotate properties or fields with the ```Dispose``` attribute. Use the ```SetToNull``` when the property or field holds a large object and should be set to ```null``` after disposal.
+Annotate properties or fields with the ```Dispose``` attribute. Use ```SetToNull``` when the property or field holds a large object and should be set to ```null``` after disposal.
 
 ```cs
 using ReflectionIT.DisposeGenerator.Attributes;
@@ -62,9 +62,9 @@ partial class LogWriter
 
 ## Implement the dispose pattern for a derived class
 
-A class derived from a class that already implements ```IDisposable``` should not implement ```IDisposable``` again, because the base class implementation of ```IDisposable.Dispose``` is inherited by derived classes.
+A class derived from a class that already implements ```IDisposable``` should not implement ```IDisposable``` again, because the base implementation of ```IDisposable.Dispose``` is inherited by derived classes.
 
-Set the ```OverrideDispose``` property of the ```Disposable``` attribute to ```true```. In that case, the public parameterless ```Dispose``` method is not generated, and the protected ```Dispose(bool)``` method is generated as an override.
+Set the ```OverrideDispose``` property of the ```Disposable``` attribute to ```true```. In that case, the public parameterless ```Dispose``` method is not generated, and the protected ```Dispose(bool)``` method is generated as an override instead.
 
 ```cs
 [Disposable(OverrideDispose = true)]
@@ -97,6 +97,64 @@ partial class SecondLogWriter
             _isDisposed = true;
         }
         base.Dispose(disposing);
+    }
+}
+```
+
+## Unmanaged resources
+
+You can also release unmanaged resources. Set the ```HasUnmanagedResources``` property of the ```Disposable``` attribute to ```true```.
+Then implement the partial method ```ReleaseUnmanagedResources```, which releases the unmanaged resource.
+
+If you need to work with unmanaged resources, we strongly recommend wrapping the unmanaged ```IntPtr``` handle in a [SafeHandle](https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose#safe-handles).
+
+```cs
+[Disposable(HasUnmanagedResources = true)]
+public partial class LogWriterWithAnExtraIntPtr : IDisposable {
+
+    private readonly IntPtr _pointer;
+
+    [Dispose]
+    private StreamWriter StreamWriter { get; }
+
+    public LogWriterWithAnExtraIntPtr(string path) {
+        StreamWriter = new StreamWriter(path);
+        _pointer = Marshal.AllocHGlobal(cb: 128);
+    }
+
+    public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+
+    // Implement this partial method to release the unmanaged resources.
+    partial void ReleaseUnmanagedResources() => Marshal.FreeHGlobal(_pointer);
+}
+```
+
+This generates the following partial class with a finalizer and a partial method named ```ReleaseUnmanagedResources``` that you must implement.
+
+```cs
+partial class LogWriterWithAnExtraIntPtr
+{
+    public void Dispose() {
+        Dispose(disposing: true);
+        global::System.GC.SuppressFinalize(this);
+    }
+
+    ~LogWriterWithAnExtraIntPtr() {
+        Dispose(disposing: false);
+    }
+
+    partial void ReleaseUnmanagedResources();
+
+    private bool _isDisposed;
+
+    protected virtual void Dispose(bool disposing) {
+        if (!_isDisposed) {
+            if (disposing) {
+                StreamWriter?.Dispose();
+            }
+            ReleaseUnmanagedResources();
+            _isDisposed = true;
+        }
     }
 }
 ```
@@ -142,4 +200,4 @@ partial class LogWriter
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) file for details.

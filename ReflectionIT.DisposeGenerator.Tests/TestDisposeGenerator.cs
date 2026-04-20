@@ -293,6 +293,79 @@ public class TestDisposeGenerator {
     }
 
     [Fact]
+    public async Task TestHasUnmanagedResources() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+                
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable(HasUnmanagedResources = true)]
+                    public partial class LogWriterWithAnExtraIntPtr : IDisposable {
+
+                        private readonly IntPtr _pointer;
+
+                        [Dispose]
+                        private StreamWriter StreamWriter { get; }
+
+                        public LogWriterWithAnExtraIntPtr(string path) {
+                            StreamWriter = new StreamWriter(path);
+                            _pointer = global::System.Runtime.InteropServices.Marshal.AllocHGlobal(cb: 128); 
+                        }
+
+                        public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+
+                        partial void ReleaseUnmanagedResources() => global::System.Runtime.InteropServices.Marshal.FreeHGlobal(_pointer);
+                    }
+                }
+                """,
+        };
+
+        // List of expected generated sources
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriterWithAnExtraIntPtr.g.cs",
+            $$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial class LogWriterWithAnExtraIntPtr
+                    {
+                        public void Dispose() {
+                            Dispose(disposing: true);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+                        ~LogWriterWithAnExtraIntPtr() {
+                            Dispose(disposing: false);
+                        }
+                        partial void ReleaseUnmanagedResources();
+                        private bool _isDisposed;
+                        protected virtual void Dispose(bool disposing) {
+                            if (!_isDisposed) {
+                                if (disposing) {
+                                    StreamWriter?.Dispose();
+                                }
+                                ReleaseUnmanagedResources();
+                                _isDisposed = true;
+                            }
+                        }
+                    }
+                }
+
+                """));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    [Fact]
     public async Task TestThreadSafeDispose() {
         var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
             ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
@@ -374,6 +447,7 @@ public class TestDisposeGenerator {
                     public bool OverrideDispose { get; set; }
                     public bool ExplicitInterfaceImplementation { get; set; }
                     public bool IsThreadSafe { get; set; }
+                    public bool HasUnmanagedResources { get; set; }
                 }
 
                 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]

@@ -71,6 +71,14 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     "}");
             }
 
+            if (dtInfo.HasUnmanagedResources) {
+                builder.AddStatements(
+                    $$"""~{{dtInfo.TypeSymbol.Name}}() {""",
+                    "    Dispose(disposing: false);",
+                    "}",
+                    "partial void ReleaseUnmanagedResources();");
+            }
+
             string accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
 
             (string isDisposedType, string isDisposedCheck, string? setIsDisposed) = dtInfo.IsThreadSafe
@@ -95,6 +103,8 @@ public sealed class SourceGenerator : IIncrementalGenerator {
             }
 
             builder.AddStatements("        }");
+
+            builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "        ReleaseUnmanagedResources();");
 
             foreach (var item in fieldsOrProperties.Where(static p => p.SetToNull)) {
                 builder.AddStatements($"        {item.MemberName} = null;");

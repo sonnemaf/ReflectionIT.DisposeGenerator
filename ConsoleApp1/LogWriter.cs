@@ -9,4 +9,6 @@ public partial class LogWriter : IDisposable {
     public LogWriter(string path) => StreamWriter = new StreamWriter(path);
 
     public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+
+    
 }

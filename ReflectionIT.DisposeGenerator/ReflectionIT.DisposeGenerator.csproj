@@ -13,6 +13,10 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/sonnemaf/ReflectionIT.DisposeGenerator</RepositoryUrl>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+        <PackageReleaseNotes>
+            Introduced HasUnmanagedResources property to DisposableAttribute and updated the source generator to handle finalizers and ReleaseUnmanagedResources partial methods.
+            Introduced ExplicitInterfaceImplementation property to DisposableAttribute class and updated the source generator to implement the IDisposable interface explicitly.
+        </PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
