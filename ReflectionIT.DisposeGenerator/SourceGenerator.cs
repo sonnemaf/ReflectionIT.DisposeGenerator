@@ -66,7 +66,6 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
                 builder.AddStatements(
                     $$"""{{am}}Dispose() {""",
-                    "    // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method",
                     "    Dispose(disposing: true);",
                     "    global::System.GC.SuppressFinalize(this);",
                     "}");

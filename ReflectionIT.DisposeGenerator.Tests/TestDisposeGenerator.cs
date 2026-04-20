@@ -56,7 +56,6 @@ public class TestDisposeGenerator {
                     partial class LogWriter
                     {
                         public void Dispose() {
-                            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
@@ -142,7 +141,6 @@ public class TestDisposeGenerator {
                     partial class LogWriter
                     {
                         public void Dispose() {
-                            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
@@ -205,7 +203,6 @@ public class TestDisposeGenerator {
                     partial class LogWriter
                     {
                         public void Dispose() {
-                            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
@@ -269,7 +266,6 @@ public class TestDisposeGenerator {
                     partial class LogWriter
                     {
                         void global::System.IDisposable.Dispose() {
-                            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
@@ -331,7 +327,6 @@ public class TestDisposeGenerator {
                     partial class LogWriter
                     {
                         public void Dispose() {
-                            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }

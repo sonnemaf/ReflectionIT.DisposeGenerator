@@ -42,7 +42,6 @@ This generates the following partial class, which disposes the ```StreamWriter``
 partial class LogWriter
 {
     public void Dispose() {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         global::System.GC.SuppressFinalize(this);
     }
@@ -125,7 +124,6 @@ This generates the following partial class, which uses ```Interlocked.CompareExc
 partial class LogWriter
 {
     public void Dispose() {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         global::System.GC.SuppressFinalize(this);
     }
