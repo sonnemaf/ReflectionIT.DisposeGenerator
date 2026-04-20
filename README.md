@@ -125,7 +125,7 @@ public partial class LogWriterWithAnExtraIntPtr : IDisposable {
     public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
 
     // Implement this partial method to release the unmanaged resources.
-    partial void ReleaseUnmanagedResources() => Marshal.FreeHGlobal(_pointer);
+    protected virtual partial void ReleaseUnmanagedResources() => Marshal.FreeHGlobal(_pointer);
 }
 ```
 
@@ -143,7 +143,7 @@ partial class LogWriterWithAnExtraIntPtr
         Dispose(disposing: false);
     }
 
-    partial void ReleaseUnmanagedResources();
+    protected virtual partial void ReleaseUnmanagedResources();
 
     private bool _isDisposed;
 

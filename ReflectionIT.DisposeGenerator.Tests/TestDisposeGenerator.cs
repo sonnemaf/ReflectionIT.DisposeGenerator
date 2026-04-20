@@ -319,7 +319,7 @@ public class TestDisposeGenerator {
 
                         public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
 
-                        partial void ReleaseUnmanagedResources() => global::System.Runtime.InteropServices.Marshal.FreeHGlobal(_pointer);
+                        protected virtual partial void ReleaseUnmanagedResources() => global::System.Runtime.InteropServices.Marshal.FreeHGlobal(_pointer);
                     }
                 }
                 """,
@@ -340,7 +340,7 @@ public class TestDisposeGenerator {
                         ~LogWriterWithAnExtraIntPtr() {
                             Dispose(disposing: false);
                         }
-                        partial void ReleaseUnmanagedResources();
+                        protected virtual partial void ReleaseUnmanagedResources();
                         private bool _isDisposed;
                         protected virtual void Dispose(bool disposing) {
                             if (!_isDisposed) {
