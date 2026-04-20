@@ -234,6 +234,69 @@ public class TestDisposeGenerator {
     }
 
     [Fact]
+    public async Task TestExplicitInterfaceImplementation() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+                
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable(ExplicitInterfaceImplementation = true)]
+                    public partial class LogWriter : IDisposable {
+
+                        [Dispose]
+                        private StreamWriter StreamWriter { get; }
+
+                        public LogWriter(string path) => StreamWriter = new StreamWriter(path);
+
+                        public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+
+                    }
+                }
+                """,
+        };
+
+        // List of expected generated sources
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
+            $$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial class LogWriter
+                    {
+                        void global::System.IDisposable.Dispose() {
+                            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+                            Dispose(disposing: true);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+                        private bool _isDisposed;
+                        protected virtual void Dispose(bool disposing) {
+                            if (!_isDisposed) {
+                                if (disposing) {
+                                    StreamWriter?.Dispose();
+                                }
+                                _isDisposed = true;
+                            }
+                        }
+                    }
+                }
+
+                """));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    [Fact]
     public async Task TestThreadSafeDispose() {
         var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
             ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
@@ -314,6 +377,7 @@ public class TestDisposeGenerator {
                 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
                 public class DisposableAttribute : Attribute {
                     public bool OverrideDispose { get; set; }
+                    public bool ExplicitInterfaceImplementation { get; set; }
                     public bool IsThreadSafe { get; set; }
                 }
 

@@ -10,8 +10,8 @@ internal class DisposableInfo {
     public ITypeSymbol TypeSymbol { get; }
 
     public bool IsThreadSafe { get; }
-    
     public bool OverrideDispose { get; }
+    public bool ExplicitInterfaceImplementation { get; }
 
     public bool IsSealed { get; }
     public bool IsValueType { get; }
@@ -29,5 +29,6 @@ internal class DisposableInfo {
 
         IsThreadSafe = attribute.NamedArguments.FirstOrDefault(n => n.Key == nameof(DisposableAttribute.IsThreadSafe)).Value.ToCSharpString() == "true";
         OverrideDispose = attribute.NamedArguments.FirstOrDefault(n => n.Key == nameof(DisposableAttribute.OverrideDispose)).Value.ToCSharpString() == "true";
+        ExplicitInterfaceImplementation = attribute.NamedArguments.FirstOrDefault(n => n.Key == nameof(DisposableAttribute.ExplicitInterfaceImplementation)).Value.ToCSharpString() == "true";
     }
 }

@@ -62,8 +62,10 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
             if (!dtInfo.OverrideDispose) {
 
+                string am = dtInfo.ExplicitInterfaceImplementation ? "void global::System.IDisposable." : "public void ";
+
                 builder.AddStatements(
-                    "public void Dispose() {",
+                    $$"""{{am}}Dispose() {""",
                     "    // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method",
                     "    Dispose(disposing: true);",
                     "    global::System.GC.SuppressFinalize(this);",
