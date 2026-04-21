@@ -17,7 +17,7 @@ https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementin
 
 ## Usage
 
-Install the NuGet package, then annotate a class or struct with the ```Disposable``` attribute.
+Install the NuGet package, then annotate a **partial** class or struct with the ```Disposable``` attribute.
 
 Annotate properties or fields with the ```Dispose``` attribute. Use ```SetToNull``` when the property or field holds a large object and should be set to ```null``` after disposal.
 
@@ -36,7 +36,7 @@ public partial class LogWriter : IDisposable {
 }
 ```
 
-This generates the following partial class, which disposes the ```StreamWriter``` property and sets it to ```null```.
+This generates the following **partial** class, which disposes the ```StreamWriter``` property and sets it to ```null```.
 
 ```cs
 partial class LogWriter
@@ -64,7 +64,7 @@ partial class LogWriter
 
 A class derived from a class that already implements ```IDisposable``` should not implement ```IDisposable``` again, because the base implementation of ```IDisposable.Dispose``` is inherited by derived classes.
 
-Set the ```OverrideDispose``` property of the ```Disposable``` attribute to ```true```. In that case, the public parameterless ```Dispose``` method is not generated, and the protected ```Dispose(bool)``` method is generated as an override instead.
+Set for this derived **partial** class the ```OverrideDispose``` property of the ```Disposable``` attribute to ```true```. In that case, the public parameterless ```Dispose``` method is not generated, and the protected ```Dispose(bool)``` method is generated as an override instead.
 
 ```cs
 [Disposable(OverrideDispose = true)]
@@ -82,7 +82,7 @@ public partial class SecondLogWriter : LogWriter {
 }
 ```
 
-This generates the following partial class, which disposes the ```SecondStreamWriter``` property.
+This generates the following **partial** class, which disposes the ```SecondStreamWriter``` property.
 
 ```cs
 partial class SecondLogWriter
