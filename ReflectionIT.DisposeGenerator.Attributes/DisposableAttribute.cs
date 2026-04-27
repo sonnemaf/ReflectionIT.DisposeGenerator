@@ -4,6 +4,7 @@
 public class DisposableAttribute : Attribute {
 
     public bool OverrideDispose { get; set; }
+    public bool OverrideDisposeAsyncCore { get; set; }
 
     public bool ExplicitInterfaceImplementation { get; set; }
 

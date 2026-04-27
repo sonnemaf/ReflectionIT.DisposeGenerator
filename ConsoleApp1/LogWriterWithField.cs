@@ -1,9 +1,10 @@
 ﻿namespace ConsoleApp1;
 
 [Disposable]
-public sealed partial class LogWriterWithField : IDisposable {
+public partial class LogWriterWithField : IDisposable, IAsyncDisposable {
 
     [Dispose(SetToNull = true)]
+    [AsyncDispose]
     private StreamWriter _streamWriter;
 
     public LogWriterWithField(string path) => _streamWriter = new StreamWriter(path);

@@ -13,7 +13,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
     public void Initialize(IncrementalGeneratorInitializationContext context) {
 
-        var typeSymbols = context.SyntaxProvider.ForAttributeWithMetadataName(
+        var disposableInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
                 typeof(DisposableAttribute).FullName,
                 predicate: static (node, cancel) => IsValidDisposableNode(node),
                 transform: static (context, cancel) =>
@@ -22,30 +22,40 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                         (TypeDeclarationSyntax)context.TargetNode!)
             );
 
-        var fieldsAndPropertiesSymbols = context.SyntaxProvider.ForAttributeWithMetadataName(
+        var disposeInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
                 typeof(DisposeAttribute).FullName,
                 predicate: static (node, cancel) => IsValidDisposeNode(node),
                 transform: static (context, cancel) =>
                     new DisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!)
             );
 
-        var all = typeSymbols.Collect().Combine(fieldsAndPropertiesSymbols.Collect());
+        var asyncDisposeInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
+            typeof(AsyncDisposeAttribute).FullName,
+            predicate: static (node, cancel) => IsValidDisposeNode(node),
+            transform: static (context, cancel) =>
+                new AsyncDisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!)
+        );
+
+
+        var all = disposableInfos.Collect().Combine(disposeInfos.Collect().Combine(asyncDisposeInfos.Collect()));
 
         context.RegisterSourceOutput(all, GenerateSource);
     }
 
-    private void GenerateSource(SourceProductionContext context, (ImmutableArray<DisposableInfo> Left, ImmutableArray<DisposeInfo> Right) tuple) {
+    private void GenerateSource(SourceProductionContext context, (ImmutableArray<DisposableInfo> Left, (ImmutableArray<DisposeInfo> Left, ImmutableArray<AsyncDisposeInfo> Right) Right) tuple) {
 
         var types = tuple.Left;
 
-        if (types.IsDefaultOrEmpty || tuple.Right.IsDefaultOrEmpty) {
+        if (types.IsDefaultOrEmpty) {
             return;
         }
 
         foreach (var dtInfo in types) {
 
-            var fieldsOrProperties = tuple.Right.Where(d => SymbolEqualityComparer.Default.Equals(d.ContainingType, dtInfo.TypeSymbol)).ToArray();
-            if (fieldsOrProperties.Length == 0) {
+            var disposeInfos = tuple.Right.Left.Where(d => SymbolEqualityComparer.Default.Equals(d.ContainingType, dtInfo.TypeSymbol)).ToDictionary(p => p.MemberName)!;
+            var asyncDisposeInfos = tuple.Right.Right.Where(d => SymbolEqualityComparer.Default.Equals(d.ContainingType, dtInfo.TypeSymbol)).ToDictionary(p => p.MemberName)!;
+
+            if (disposeInfos.Count + asyncDisposeInfos.Count == 0 && !dtInfo.HasUnmanagedResources) {
                 continue;
             }
 
@@ -60,7 +70,10 @@ public sealed class SourceGenerator : IIncrementalGenerator {
             builder.AddPartialType(dtInfo.TypeSymbol);
             builder.AddStatementAndStartBlock(string.Empty);
 
-            if (!dtInfo.OverrideDispose) {
+            bool generateDispose = disposeInfos.Count > 0;
+            bool generateAsyncDispose = asyncDisposeInfos.Count > 0;
+
+            if (!dtInfo.OverrideDispose && generateDispose) {
 
                 string am = dtInfo.ExplicitInterfaceImplementation ? "void global::System.IDisposable." : "public void ";
 
@@ -70,20 +83,34 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     "    global::System.GC.SuppressFinalize(this);",
                     "}");
             }
-            string accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
+
+            //const string valueTaskText = "ValueTask";
+            const string valueTaskText = "global::System.Threading.Tasks.ValueTask";
+
+            if (!dtInfo.OverrideDisposeAsyncCore && generateAsyncDispose) {
+
+                string am = dtInfo.ExplicitInterfaceImplementation ? $"async {valueTaskText} global::System.IAsyncDisposable." : $"public async {valueTaskText} ";
+
+                builder.AddStatements(
+                    $$"""{{am}}DisposeAsync() {""",
+                    "    await DisposeAsyncCore().ConfigureAwait(false);",
+                    "    global::System.GC.SuppressFinalize(this);",
+                    "}");
+            }
 
             (string isDisposedType, string isDisposedCheck, string? setIsDisposed) = dtInfo.IsThreadSafe
                 ? ("int", "global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) == 0", null)
                 : ("bool", "!_isDisposed", "_isDisposed = true;");
 
+            string accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
             string? baseDisposed = null;
 
-            if (dtInfo.OverrideDispose && accessModifiers.Contains("virtual")) {
+            if (dtInfo.OverrideDispose && generateDispose && accessModifiers.Contains("virtual")) {
                 accessModifiers = "protected override";
                 baseDisposed = "    base.Dispose(disposing);";
             }
 
-            if (dtInfo.HasUnmanagedResources) {
+            if (dtInfo.HasUnmanagedResources && generateDispose) {
                 builder.AddStatements(
                     $$"""~{{dtInfo.TypeSymbol.Name}}() {""",
                     "    Dispose(disposing: false);",
@@ -91,30 +118,75 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     $$"""{{accessModifiers}} partial void ReleaseUnmanagedResources();""");
             }
 
-            builder.AddStatements(
-                $"private {isDisposedType} _isDisposed;",
-                $$"""{{accessModifiers}} void Dispose(bool disposing) {""",
-                $$"""    if ({{isDisposedCheck}}) {""",
-                "        if (disposing) {");
-
-            foreach (var item in fieldsOrProperties) {
-                builder.AddStatements($"            {item.MemberName}?.Dispose();");
+            if (generateDispose || generateAsyncDispose) {
+                builder.AddStatements($"private {isDisposedType} _isDisposed;");
             }
 
-            builder.AddStatements("        }");
+            if (generateDispose) {
 
-            builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "        ReleaseUnmanagedResources();");
+                builder.AddStatements(
+                    $$"""{{accessModifiers}} void Dispose(bool disposing) {""",
+                    $$"""    if ({{isDisposedCheck}}) {""",
+                    "        if (disposing) {");
 
-            foreach (var item in fieldsOrProperties.Where(static p => p.SetToNull)) {
-                builder.AddStatements($"        {item.MemberName} = null;");
+                foreach (var item in disposeInfos.Values) {
+                    builder.AddStatements($"            {item.MemberName}?.Dispose();");
+                }
+
+                foreach (var item in asyncDisposeInfos.Values) {
+                    if (!disposeInfos.ContainsKey(item.MemberName)) {
+                        builder.AddStatements($"            if ({item.MemberName} is IDisposable local{item.MemberName}) local{item.MemberName}.Dispose();");
+                    }
+                }
+
+
+                builder.AddStatements("        }");
+
+                builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "        ReleaseUnmanagedResources();");
+
+                SetNull(disposeInfos, asyncDisposeInfos, builder);
+
+                builder.AddStatements(
+                   $"        {setIsDisposed}",
+                   "    }",
+                   baseDisposed,
+                   "}");
             }
 
+            if (generateAsyncDispose) {
 
-            builder.AddStatements(
-               $"        {setIsDisposed}",
-               "    }",
-               baseDisposed,
-               "}");
+                accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
+
+                if (dtInfo.OverrideDisposeAsyncCore && accessModifiers.Contains("virtual")) {
+                    accessModifiers = "protected override";
+                    baseDisposed = "    await base.DisposeAsyncCore().ConfigureAwait(false);";
+                }
+
+                builder.AddStatements(
+                    $$"""{{accessModifiers}} async {{valueTaskText}} DisposeAsyncCore() {""",
+                    $$"""    if ({{isDisposedCheck}}) {""");
+
+                foreach (var item in asyncDisposeInfos.Values) {
+                    builder.AddStatements($$"""        if ({{item.MemberName}} != null) {""",
+                                          $"            await {item.MemberName}.DisposeAsync().ConfigureAwait({item.ConfigureAwait.ToString().ToLower()});",
+                                           "        }");
+                }
+
+                foreach (var item in disposeInfos.Values) {
+                    if (!asyncDisposeInfos.ContainsKey(item.MemberName)) {
+                        builder.AddStatements($"            {item.MemberName}?.Dispose();");
+                    }
+                }
+
+                builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "        ReleaseUnmanagedResources();");
+                SetNull(disposeInfos, asyncDisposeInfos, builder);
+
+                builder.AddStatements(
+                   $"        {setIsDisposed}",
+                   "    }",
+                   baseDisposed,
+                   "}");
+            }
 
             builder.EndPartialType(dtInfo.TypeSymbol);
             builder.EndNamespace();
@@ -128,20 +200,25 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
             context.AddSource($"{filename}.g.cs", SourceText.From(src, Encoding.UTF8));
         }
+
+        static void SetNull(Dictionary<string, DisposeInfo> disposeInfos, Dictionary<string, AsyncDisposeInfo> asyncDisposeInfos, CsFileBuilder builder) {
+            foreach (var item in disposeInfos.Values.Where(static p => p.SetToNull).Union(asyncDisposeInfos.Values.Where(static p => p.SetToNull))) {
+                builder.AddStatements($"        {item.MemberName} = null;");
+            }
+        }
     }
 
     internal static bool IsValidDisposableNode(SyntaxNode node) {
-        // The node must be a property declaration with two accessors
+        // Partrial class
         if (node is ClassDeclarationSyntax classType) {
             return classType.Modifiers.Any(SyntaxKind.PartialKeyword);
         }
+        // partial record
         if (node is RecordDeclarationSyntax recordType) {
             return recordType.Modifiers.Any(SyntaxKind.PartialKeyword);
         }
-        if (node is StructDeclarationSyntax stuctType) {
-            return stuctType.Modifiers.Any(SyntaxKind.PartialKeyword);
-        }
-        return false;
+        // partial struct
+        return node is StructDeclarationSyntax stuctType ? stuctType.Modifiers.Any(SyntaxKind.PartialKeyword) : false;
     }
 
     internal static bool IsValidDisposeNode(SyntaxNode node) {

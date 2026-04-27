@@ -231,6 +231,81 @@ public class TestDisposeGenerator {
     }
 
     [Fact]
+    public async Task TestSyncAndAsyncDisposeField() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+                
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable]
+                    public partial class LogWriter : IDisposable, IAsyncDisposable {
+
+                        [Dispose]
+                        [AsyncDispose]
+                        private StreamWriter _streamWriter;
+
+                        public LogWriter(string path) => _streamWriter = new StreamWriter(path);
+
+                        public void WriteLine(string text) => _streamWriter.WriteLine($"{DateTime.Now}\t{text}");
+
+                    }
+                }
+                """,
+        };
+
+        // List of expected generated sources
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
+            $$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial class LogWriter
+                    {
+                        public void Dispose() {
+                            Dispose(disposing: true);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+                        public async global::System.Threading.Tasks.ValueTask DisposeAsync() {
+                            await DisposeAsyncCore().ConfigureAwait(false);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+                        private bool _isDisposed;
+                        protected virtual void Dispose(bool disposing) {
+                            if (!_isDisposed) {
+                                if (disposing) {
+                                    _streamWriter?.Dispose();
+                                }
+                                _isDisposed = true;
+                            }
+                        }
+                        protected virtual async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
+                            if (!_isDisposed) {
+                                if (_streamWriter != null) {
+                                    await _streamWriter.DisposeAsync().ConfigureAwait(false);
+                                }
+                                _isDisposed = true;
+                            }
+                        }
+                    }
+                }
+
+                """));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    [Fact]
     public async Task TestExplicitInterfaceImplementation() {
         var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
             ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
@@ -445,6 +520,7 @@ public class TestDisposeGenerator {
                 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
                 public class DisposableAttribute : Attribute {
                     public bool OverrideDispose { get; set; }
+                    public bool OverrideDisposeAsyncCore { get; set; }
                     public bool ExplicitInterfaceImplementation { get; set; }
                     public bool IsThreadSafe { get; set; }
                     public bool HasUnmanagedResources { get; set; }
@@ -452,7 +528,12 @@ public class TestDisposeGenerator {
 
                 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
                 public class DisposeAttribute : Attribute {
-                    public bool SetToNull { get; set;}
+                    public bool SetToNull { get; set;}    
+                }
+                
+                [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+                public class AsyncDisposeAttribute : DisposeAttribute {
+                    public bool ConfigureAwait { get; set; } = true;
                 }
             }
             """;

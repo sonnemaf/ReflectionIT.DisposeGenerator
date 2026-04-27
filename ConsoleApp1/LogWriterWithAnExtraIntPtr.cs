@@ -1,20 +1,20 @@
-﻿namespace ConsoleApp1;
+﻿//namespace ConsoleApp1;
 
-[Disposable(HasUnmanagedResources = true)]
-public partial class LogWriterWithAnExtraIntPtr : IDisposable {
+//[Disposable(HasUnmanagedResources = true)]
+//public partial class LogWriterWithAnExtraIntPtr : IDisposable {
 
-    private readonly IntPtr _pointer;
+//    private readonly IntPtr _pointer;
 
-    [Dispose]
-    private StreamWriter StreamWriter { get; }
+//    [Dispose]
+//    private StreamWriter StreamWriter { get; }
 
-    public LogWriterWithAnExtraIntPtr(string path) {
-        StreamWriter = new StreamWriter(path);
-        _pointer = global::System.Runtime.InteropServices.Marshal.AllocHGlobal(cb: 128);
-    }
+//    public LogWriterWithAnExtraIntPtr(string path) {
+//        StreamWriter = new StreamWriter(path);
+//        _pointer = global::System.Runtime.InteropServices.Marshal.AllocHGlobal(cb: 128);
+//    }
 
-    public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+//    public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
 
-    // Implement this partial method to release the Unmanaged Resources
-    protected virtual partial void ReleaseUnmanagedResources() => global::System.Runtime.InteropServices.Marshal.FreeHGlobal(_pointer);
-}
+//    // Implement this partial method to release the Unmanaged Resources
+//    protected virtual partial void ReleaseUnmanagedResources() => global::System.Runtime.InteropServices.Marshal.FreeHGlobal(_pointer);
+//}

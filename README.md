@@ -1,13 +1,10 @@
 # ReflectionIT.DisposeGenerator
 
-A source generator package that implements the Dispose pattern.
+A source generator package that implements the Dispose and Async Dispose pattern.
 
 - https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/dispose-pattern 
 - https://docs.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose 
-
-Planned future support includes the async dispose pattern.
-
-https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-disposeasync
+- https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-disposeasync
 
 ## NuGet package
 

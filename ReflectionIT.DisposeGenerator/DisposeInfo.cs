@@ -5,7 +5,7 @@ using ReflectionIT.DisposeGenerator.Attributes;
 
 namespace ReflectionIT.DisposeGenerator;
 
-internal class DisposeInfo {
+internal class DisposeInfo : IEquatable<DisposeInfo?> {
 
     public string MemberName { get; }
     public ITypeSymbol ContainingType { get; }
@@ -23,4 +23,10 @@ internal class DisposeInfo {
 
         SetToNull = attribute.NamedArguments.FirstOrDefault(n => n.Key == nameof(DisposeAttribute.SetToNull)).Value.ToCSharpString() == "true";
     }
+
+    public override bool Equals(object? obj) => Equals(obj as DisposeInfo);
+
+    public bool Equals(DisposeInfo? other) => other is not null && MemberName == other.MemberName;
+
+    public override int GetHashCode() => 30165064 + EqualityComparer<string>.Default.GetHashCode(MemberName);
 }

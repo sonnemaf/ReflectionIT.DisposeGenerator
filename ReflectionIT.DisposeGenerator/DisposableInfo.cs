@@ -11,6 +11,7 @@ internal class DisposableInfo {
 
     public bool IsThreadSafe { get; }
     public bool OverrideDispose { get; }
+    public bool OverrideDisposeAsyncCore { get; set; }
     public bool ExplicitInterfaceImplementation { get; }
     public bool HasUnmanagedResources { get; }
 
@@ -28,6 +29,7 @@ internal class DisposableInfo {
 
         IsThreadSafe = ReadBoolean(attribute, nameof(DisposableAttribute.IsThreadSafe));
         OverrideDispose = ReadBoolean(attribute, nameof(DisposableAttribute.OverrideDispose));
+        OverrideDisposeAsyncCore = ReadBoolean(attribute, nameof(DisposableAttribute.OverrideDisposeAsyncCore));
         ExplicitInterfaceImplementation = ReadBoolean(attribute, nameof(DisposableAttribute.ExplicitInterfaceImplementation));
         HasUnmanagedResources = ReadBoolean(attribute, nameof(DisposableAttribute.HasUnmanagedResources));
 
