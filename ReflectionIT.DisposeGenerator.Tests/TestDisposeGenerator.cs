@@ -935,6 +935,260 @@ public class TestDisposeGenerator {
     }
 
     [Fact]
+    public async Task TestDisposeStructField() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable]
+                    public partial struct LogWriter : IDisposable {
+
+                        [Dispose]
+                        private StreamWriter _streamWriter;
+
+                        public LogWriter(string path) => _streamWriter = new StreamWriter(path);
+
+                        public void WriteLine(string text) => _streamWriter.WriteLine($"{DateTime.Now}\t{text}");
+                    }
+                }
+                """,
+        };
+
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
+            NormalizeGeneratedSource($$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial struct LogWriter
+                    {
+                        /// <summary>
+                        /// Releases all resources used by the current instance.
+                        /// </summary>
+                        public void Dispose() {
+                            Dispose(disposing: true);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field must not be modified manually.
+                        /// </summary>
+                        private bool _isDisposed;
+
+                        /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        private void ThrowIfDisposed() {
+                            if (_isDisposed) {
+                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
+                            }
+                        }
+
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                        private void Dispose(bool disposing) {
+                            if (_isDisposed) {
+                                return;
+                            }
+                            _isDisposed = true;
+                            if (disposing) {
+                                _streamWriter?.Dispose();
+                            }
+                        }
+
+
+                    }
+                }
+
+                """)));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    [Fact]
+    public async Task TestAsyncDisposeStructField() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable]
+                    public partial struct LogWriter : IAsyncDisposable {
+
+                        [AsyncDispose]
+                        private StreamWriter _streamWriter;
+
+                        public LogWriter(string path) => _streamWriter = new StreamWriter(path);
+
+                        public void WriteLine(string text) => _streamWriter.WriteLine($"{DateTime.Now}\t{text}");
+                    }
+                }
+                """,
+        };
+
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
+            NormalizeGeneratedSource($$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial struct LogWriter
+                    {
+                        /// <summary>
+                        /// Asynchronously releases all resources used by the current instance.
+                        /// </summary>
+                        /// <returns>
+                        /// A task that represents the asynchronous dispose operation.
+                        /// </returns>
+                        public async global::System.Threading.Tasks.ValueTask DisposeAsync() {
+                            await DisposeAsyncCore().ConfigureAwait(false);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field must not be modified manually.
+                        /// </summary>
+                        private bool _isDisposed;
+
+                        /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        private void ThrowIfDisposed() {
+                            if (_isDisposed) {
+                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
+                            }
+                        }
+
+                        /// <summary>
+                        /// Asynchronously releases the resources used by the current instance.
+                        /// </summary>
+                        /// <returns>
+                        /// A task that represents the asynchronous dispose operation.
+                        /// </returns>
+                        private async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
+                            if (_isDisposed) {
+                                return;
+                            }
+                            _isDisposed = true;
+                            if (_streamWriter != null) {
+                                await _streamWriter.DisposeAsync().ConfigureAwait(false);
+                            }
+                        }
+
+
+                    }
+                }
+
+                """)));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    [Fact]
+    public async Task TestThreadSafeDisposeStruct() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable(IsThreadSafe = true)]
+                    public partial struct LogWriter : IDisposable {
+
+                        [Dispose]
+                        private StreamWriter StreamWriter { get; }
+
+                        public LogWriter(string path) => StreamWriter = new StreamWriter(path);
+                    }
+                }
+                """,
+        };
+
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
+            NormalizeGeneratedSource($$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial struct LogWriter
+                    {
+                        /// <summary>
+                        /// Releases all resources used by the current instance.
+                        /// </summary>
+                        public void Dispose() {
+                            Dispose(disposing: true);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+
+                        /// <summary>
+                        /// Detects redundant Dispose() calls in a thread-safe manner. _isDisposed == 0 means Dispose(bool) has not been called yet, and _isDisposed == 1 means Dispose(bool) has already been called. This field must not be modified manually.
+                        /// </summary>
+                        private int _isDisposed;
+
+                        /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        private void ThrowIfDisposed() {
+                            if (_isDisposed != 0) {
+                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
+                            }
+                        }
+
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                        private void Dispose(bool disposing) {
+                            if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0) {
+                                return;
+                            }
+                            if (disposing) {
+                                StreamWriter?.Dispose();
+                            }
+                        }
+
+
+                    }
+                }
+
+                """)));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    [Fact]
     public async Task TestDisposeAttributeOnNonDisposableMember() {
         var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
             ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
