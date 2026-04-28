@@ -127,7 +127,8 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                 builder.AddStatements(
                     $$"""{{accessModifiers}} void Dispose(bool disposing) {""",
                     $$"""    if ({{isDisposedCheck}}) {""",
-                    "        if (disposing) {");
+                    $"""        {setIsDisposed}""",
+                     """        if (disposing) {""");
 
                 foreach (var item in disposeInfos.Values) {
                     builder.AddStatements($"            {item.MemberName}?.Dispose();");
@@ -147,7 +148,6 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                 SetNull(disposeInfos, asyncDisposeInfos, builder);
 
                 builder.AddStatements(
-                   $"        {setIsDisposed}",
                    "    }",
                    baseDisposed,
                    "}");
@@ -164,7 +164,8 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
                 builder.AddStatements(
                     $$"""{{accessModifiers}} async {{valueTaskText}} DisposeAsyncCore() {""",
-                    $$"""    if ({{isDisposedCheck}}) {""");
+                    $$"""    if ({{isDisposedCheck}}) {""",
+                     $"""        {setIsDisposed}""");
 
                 foreach (var item in asyncDisposeInfos.Values) {
                     builder.AddStatements($$"""        if ({{item.MemberName}} != null) {""",
@@ -182,7 +183,6 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                 SetNull(disposeInfos, asyncDisposeInfos, builder);
 
                 builder.AddStatements(
-                   $"        {setIsDisposed}",
                    "    }",
                    baseDisposed,
                    "}");

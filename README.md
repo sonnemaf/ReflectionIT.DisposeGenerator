@@ -47,11 +47,11 @@ partial class LogWriter
 
     protected virtual void Dispose(bool disposing) {
         if (!_isDisposed) {
+            _isDisposed = true;
             if (disposing) {
                 StreamWriter?.Dispose();
             }
             StreamWriter = null;
-            _isDisposed = true;
         }
     }
 }
@@ -88,10 +88,10 @@ partial class SecondLogWriter
 
     protected override void Dispose(bool disposing) {
         if (!_isDisposed) {
+            _isDisposed = true;
             if (disposing) {
                 SecondStreamWriter?.Dispose();
             }
-            _isDisposed = true;
         }
         base.Dispose(disposing);
     }
@@ -146,11 +146,11 @@ partial class LogWriterWithAnExtraIntPtr
 
     protected virtual void Dispose(bool disposing) {
         if (!_isDisposed) {
+            _isDisposed = true;
             if (disposing) {
                 StreamWriter?.Dispose();
             }
             ReleaseUnmanagedResources();
-            _isDisposed = true;
         }
     }
 }
