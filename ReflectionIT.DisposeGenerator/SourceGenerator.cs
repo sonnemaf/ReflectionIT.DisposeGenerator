@@ -77,6 +77,10 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
                 string am = dtInfo.ExplicitInterfaceImplementation ? "void global::System.IDisposable." : "public void ";
 
+                builder.AddXmlCommentLines(
+                    "<summary>",
+                    "Releases all resources used by the current instance.",
+                    "</summary>");
                 builder.AddStatements(
                     $$"""{{am}}Dispose() {""",
                     "    Dispose(disposing: true);",
@@ -91,6 +95,13 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
                 string am = dtInfo.ExplicitInterfaceImplementation ? $"async {valueTaskText} global::System.IAsyncDisposable." : $"public async {valueTaskText} ";
 
+                builder.AddXmlCommentLines(
+                    "<summary>",
+                    "Asynchronously releases all resources used by the current instance.",
+                    "</summary>",
+                    "<returns>",
+                    "A task that represents the asynchronous dispose operation.",
+                    "</returns>");
                 builder.AddStatements(
                     $$"""{{am}}DisposeAsync() {""",
                     "    await DisposeAsyncCore().ConfigureAwait(false);",
@@ -111,10 +122,19 @@ public sealed class SourceGenerator : IIncrementalGenerator {
             }
 
             if (dtInfo.HasUnmanagedResources && generateDispose) {
+                builder.AddXmlCommentLines(
+                    "<summary>",
+                    "Releases unmanaged resources held by the current instance.",
+                    "</summary>");
                 builder.AddStatements(
                     $$"""~{{dtInfo.TypeSymbol.Name}}() {""",
                     "    Dispose(disposing: false);",
-                    "}",
+                    "}");
+                builder.AddXmlCommentLines(
+                    "<summary>",
+                    "Releases unmanaged resources held by the current instance.",
+                    "</summary>");
+                builder.AddStatements(
                     $$"""{{accessModifiers}} partial void ReleaseUnmanagedResources();""");
             }
 
@@ -124,6 +144,11 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
             if (generateDispose) {
 
+                builder.AddXmlCommentLines(
+                    "<summary>",
+                    "Releases the unmanaged resources used by the current instance and optionally releases the managed resources.",
+                    "</summary>",
+                    "<param name=\"disposing\">\"true\" to release managed resources; otherwise, \"false\".</param>");
                 builder.AddStatements(
                     $$"""{{accessModifiers}} void Dispose(bool disposing) {""",
                     $$"""    if ({{isDisposedReturnCheck}}) {""",
@@ -163,6 +188,13 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     baseDisposed = "    await base.DisposeAsyncCore().ConfigureAwait(false);";
                 }
 
+                builder.AddXmlCommentLines(
+                    "<summary>",
+                    "Asynchronously releases the resources used by the current instance.",
+                    "</summary>",
+                    "<returns>",
+                    "A task that represents the asynchronous dispose operation.",
+                    "</returns>");
                 builder.AddStatements(
                     $$"""{{accessModifiers}} async {{valueTaskText}} DisposeAsyncCore() {""",
                     $$"""    if ({{isDisposedReturnCheck}}) {""",

@@ -55,11 +55,18 @@ public class TestDisposeGenerator {
                 {
                     partial class LogWriter
                     {
+                        /// <summary>
+                        /// Releases all resources used by the current instance.
+                        /// </summary>
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
@@ -83,6 +90,10 @@ public class TestDisposeGenerator {
                     partial class SecondLogWriter
                     {
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
                         protected override void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
@@ -142,11 +153,18 @@ public class TestDisposeGenerator {
                 {
                     partial class LogWriter
                     {
+                        /// <summary>
+                        /// Releases all resources used by the current instance.
+                        /// </summary>
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
@@ -205,11 +223,18 @@ public class TestDisposeGenerator {
                 {
                     partial class LogWriter
                     {
+                        /// <summary>
+                        /// Releases all resources used by the current instance.
+                        /// </summary>
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
@@ -270,15 +295,28 @@ public class TestDisposeGenerator {
                 {
                     partial class LogWriter
                     {
+                        /// <summary>
+                        /// Releases all resources used by the current instance.
+                        /// </summary>
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+                        /// <summary>
+                        /// Asynchronously releases all resources used by the current instance.
+                        /// </summary>
+                        /// <returns>
+                        /// A task that represents the asynchronous dispose operation.
+                        /// </returns>
                         public async global::System.Threading.Tasks.ValueTask DisposeAsync() {
                             await DisposeAsyncCore().ConfigureAwait(false);
                             global::System.GC.SuppressFinalize(this);
                         }
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
@@ -288,6 +326,12 @@ public class TestDisposeGenerator {
                                 _streamWriter?.Dispose();
                             }
                         }
+                        /// <summary>
+                        /// Asynchronously releases the resources used by the current instance.
+                        /// </summary>
+                        /// <returns>
+                        /// A task that represents the asynchronous dispose operation.
+                        /// </returns>
                         protected virtual async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
                             if (_isDisposed) {
                                 return;
@@ -346,11 +390,18 @@ public class TestDisposeGenerator {
                 {
                     partial class LogWriter
                     {
+                        /// <summary>
+                        /// Releases all resources used by the current instance.
+                        /// </summary>
                         void global::System.IDisposable.Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
@@ -415,15 +466,28 @@ public class TestDisposeGenerator {
                 {
                     partial class LogWriterWithAnExtraIntPtr
                     {
+                        /// <summary>
+                        /// Releases all resources used by the current instance.
+                        /// </summary>
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+                        /// <summary>
+                        /// Releases unmanaged resources held by the current instance.
+                        /// </summary>
                         ~LogWriterWithAnExtraIntPtr() {
                             Dispose(disposing: false);
                         }
+                        /// <summary>
+                        /// Releases unmanaged resources held by the current instance.
+                        /// </summary>
                         protected virtual partial void ReleaseUnmanagedResources();
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
@@ -482,11 +546,18 @@ public class TestDisposeGenerator {
                 {
                     partial class LogWriter
                     {
+                        /// <summary>
+                        /// Releases all resources used by the current instance.
+                        /// </summary>
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
                         private int _isDisposed;
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
                         protected virtual void Dispose(bool disposing) {
                             if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0) {
                                 return;

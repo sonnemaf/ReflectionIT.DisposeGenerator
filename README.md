@@ -38,6 +38,9 @@ This generates the following **partial** class, which disposes the ```StreamWrit
 ```cs
 partial class LogWriter
 {
+    /// <summary>
+    /// Releases all resources used by the current instance.
+    /// </summary>
     public void Dispose() {
         Dispose(disposing: true);
         global::System.GC.SuppressFinalize(this);
@@ -45,6 +48,10 @@ partial class LogWriter
 
     private bool _isDisposed;
 
+    /// <summary>
+    /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+    /// </summary>
+    /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
     protected virtual void Dispose(bool disposing) {
         if (_isDisposed) {
             return;
@@ -87,6 +94,10 @@ partial class SecondLogWriter
 {
     private bool _isDisposed;
 
+    /// <summary>
+    /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+    /// </summary>
+    /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
     protected override void Dispose(bool disposing) {
         if (_isDisposed) {
             return;
@@ -133,19 +144,32 @@ This generates the following partial class with a finalizer and a partial method
 ```cs
 partial class LogWriterWithAnExtraIntPtr
 {
+    /// <summary>
+    /// Releases all resources used by the current instance.
+    /// </summary>
     public void Dispose() {
         Dispose(disposing: true);
         global::System.GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    /// Releases unmanaged resources held by the current instance.
+    /// </summary>
     ~LogWriterWithAnExtraIntPtr() {
         Dispose(disposing: false);
     }
 
+    /// <summary>
+    /// Releases unmanaged resources held by the current instance.
+    /// </summary>
     protected virtual partial void ReleaseUnmanagedResources();
 
     private bool _isDisposed;
 
+    /// <summary>
+    /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+    /// </summary>
+    /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
     protected virtual void Dispose(bool disposing) {
         if (_isDisposed) {
             return;
@@ -181,6 +205,9 @@ This generates the following partial class, which uses ```Interlocked.CompareExc
 ```cs
 partial class LogWriter
 {
+    /// <summary>
+    /// Releases all resources used by the current instance.
+    /// </summary>
     public void Dispose() {
         Dispose(disposing: true);
         global::System.GC.SuppressFinalize(this);
@@ -188,6 +215,10 @@ partial class LogWriter
 
     private int _isDisposed;
 
+    /// <summary>
+    /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+    /// </summary>
+    /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
     protected virtual void Dispose(bool disposing) {
         if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0) {
             return;
