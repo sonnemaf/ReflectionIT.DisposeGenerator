@@ -148,8 +148,8 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                 builder.AddXmlCommentLines(
                     "<summary>",
                     dtInfo.IsThreadSafe
-                        ? "Tracks whether the current instance has been disposed. This field uses \"int\" for thread-safe state transitions and must not be modified manually."
-                        : "Tracks whether the current instance has been disposed. This field uses \"bool\" and must not be modified manually.",
+                        ? "Detects redundant Dispose() calls in a thread-safe manner. _isDisposed == 0 means Dispose(bool) has not been called yet, and _isDisposed == 1 means Dispose(bool) has already been called. This field must not be modified manually."
+                        : "Tracks whether the current instance has been disposed. This field must not be modified manually.",
                     "</summary>");
                 builder.AddStatements($"private {isDisposedType} _isDisposed;");
                 builder.AddEmptyLine();
