@@ -49,7 +49,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -62,10 +62,12 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
                         /// </summary>
                         private bool _isDisposed;
+
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
@@ -74,6 +76,7 @@ public class TestDisposeGenerator {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
+
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -87,14 +90,16 @@ public class TestDisposeGenerator {
                                 StreamWriter?.Dispose();
                             }
                         }
+
+
                     }
                 }
 
-                """));
+                """)));
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.SecondLogWriter.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -104,6 +109,7 @@ public class TestDisposeGenerator {
                         /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
                         /// </summary>
                         private bool _isDisposed;
+
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
@@ -113,6 +119,7 @@ public class TestDisposeGenerator {
                             }
                             base.ThrowIfDisposed();
                         }
+
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -127,10 +134,11 @@ public class TestDisposeGenerator {
                             }
                             base.Dispose(disposing);
                         }
+
                     }
                 }
 
-                """));
+                """)));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -170,7 +178,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -183,10 +191,12 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
                         /// </summary>
                         private bool _isDisposed;
+
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
@@ -195,6 +205,7 @@ public class TestDisposeGenerator {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
+
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -208,10 +219,12 @@ public class TestDisposeGenerator {
                                 StreamWriter?.Dispose();
                             }
                         }
+
+
                     }
                 }
 
-                """));
+                """)));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -251,7 +264,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -264,10 +277,12 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
                         /// </summary>
                         private bool _isDisposed;
+
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
@@ -276,6 +291,7 @@ public class TestDisposeGenerator {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
+
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -290,10 +306,12 @@ public class TestDisposeGenerator {
                             }
                             _streamWriter = null;
                         }
+
+
                     }
                 }
 
-                """));
+                """)));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -334,7 +352,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -347,6 +365,7 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+
                         /// <summary>
                         /// Asynchronously releases all resources used by the current instance.
                         /// </summary>
@@ -357,10 +376,12 @@ public class TestDisposeGenerator {
                             await DisposeAsyncCore().ConfigureAwait(false);
                             global::System.GC.SuppressFinalize(this);
                         }
+
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
                         /// </summary>
                         private bool _isDisposed;
+
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
@@ -369,6 +390,7 @@ public class TestDisposeGenerator {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
+
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -382,6 +404,7 @@ public class TestDisposeGenerator {
                                 _streamWriter?.Dispose();
                             }
                         }
+
                         /// <summary>
                         /// Asynchronously releases the resources used by the current instance.
                         /// </summary>
@@ -397,10 +420,12 @@ public class TestDisposeGenerator {
                                 await _streamWriter.DisposeAsync().ConfigureAwait(false);
                             }
                         }
+
+
                     }
                 }
 
-                """));
+                """)));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -440,7 +465,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -453,10 +478,12 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
                         /// </summary>
                         private bool _isDisposed;
+
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
@@ -465,6 +492,7 @@ public class TestDisposeGenerator {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
+
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -478,10 +506,12 @@ public class TestDisposeGenerator {
                                 StreamWriter?.Dispose();
                             }
                         }
+
+
                     }
                 }
 
-                """));
+                """)));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -527,7 +557,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriterWithAnExtraIntPtr.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -540,20 +570,24 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+
                         /// <summary>
                         /// Releases unmanaged resources held by the current instance.
                         /// </summary>
                         ~LogWriterWithAnExtraIntPtr() {
                             Dispose(disposing: false);
                         }
+
                         /// <summary>
                         /// Releases unmanaged resources held by the current instance.
                         /// </summary>
                         protected virtual partial void ReleaseUnmanagedResources();
+
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
                         /// </summary>
                         private bool _isDisposed;
+
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
@@ -562,6 +596,7 @@ public class TestDisposeGenerator {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriterWithAnExtraIntPtr));
                             }
                         }
+
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -576,10 +611,12 @@ public class TestDisposeGenerator {
                             }
                             ReleaseUnmanagedResources();
                         }
+
+
                     }
                 }
 
-                """));
+                """)));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -618,7 +655,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -631,10 +668,12 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field uses "int" for thread-safe state transitions and must not be modified manually.
                         /// </summary>
                         private int _isDisposed;
+
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
@@ -643,6 +682,7 @@ public class TestDisposeGenerator {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
+
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -655,10 +695,12 @@ public class TestDisposeGenerator {
                                 StreamWriter?.Dispose();
                             }
                         }
+
+
                     }
                 }
 
-                """));
+                """)));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -696,7 +738,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -709,10 +751,12 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
                         /// </summary>
                         private bool _isDisposed;
+
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -726,10 +770,12 @@ public class TestDisposeGenerator {
                                 StreamWriter?.Dispose();
                             }
                         }
+
+
                     }
                 }
 
-                """));
+                """)));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -781,7 +827,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -797,10 +843,12 @@ public class TestDisposeGenerator {
                             await DisposeAsyncCore().ConfigureAwait(false);
                             global::System.GC.SuppressFinalize(this);
                         }
+
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
                         /// </summary>
                         private bool _isDisposed;
+
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
@@ -809,6 +857,7 @@ public class TestDisposeGenerator {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
+
                         /// <summary>
                         /// Asynchronously releases the resources used by the current instance.
                         /// </summary>
@@ -824,13 +873,15 @@ public class TestDisposeGenerator {
                                 await StreamWriter.DisposeAsync().ConfigureAwait(false);
                             }
                         }
+
+
                     }
                 }
 
-                """));
+                """)));
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.SecondLogWriter.g.cs",
-            $$"""
+            NormalizeGeneratedSource($$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -840,6 +891,7 @@ public class TestDisposeGenerator {
                         /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
                         /// </summary>
                         private bool _isDisposed;
+
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
@@ -849,6 +901,7 @@ public class TestDisposeGenerator {
                             }
                             base.ThrowIfDisposed();
                         }
+
                         /// <summary>
                         /// Asynchronously releases the resources used by the current instance.
                         /// </summary>
@@ -865,10 +918,12 @@ public class TestDisposeGenerator {
                             }
                             await base.DisposeAsyncCore().ConfigureAwait(false);
                         }
+
+
                     }
                 }
 
-                """));
+                """)));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -877,6 +932,17 @@ public class TestDisposeGenerator {
         });
 
         await context.RunAsync();
+    }
+
+    private static string NormalizeGeneratedSource(string source) {
+        var newLine = Environment.NewLine;
+
+        return source
+            .Replace("}" + newLine + newLine + "        ///", "}" + newLine + "        " + newLine + "        ///")
+            .Replace(";" + newLine + newLine + "        ///", ";" + newLine + "        " + newLine + "        ///")
+            .Replace("Dispose();" + newLine + "        }" + newLine + "    }", "Dispose();" + newLine + "        }" + newLine + "        " + newLine + "    }")
+            .Replace("}" + newLine + newLine + newLine + "    }", "}" + newLine + "        " + newLine + "    }")
+            .Replace("}" + newLine + newLine + "    }", "}" + newLine + "        " + newLine + "    }");
     }
 
     public const string HEADER_CODE = """

@@ -105,6 +105,7 @@ partial class LogWriter
         }
         StreamWriter = null;
     }
+
 }
 ```
 
@@ -164,6 +165,7 @@ partial class SecondLogWriter
         }
         base.Dispose(disposing);
     }
+
 }
 ```
 
@@ -248,6 +250,7 @@ partial class LogWriterWithAnExtraIntPtr
         }
         ReleaseUnmanagedResources();
     }
+
 }
 ```
 
@@ -307,6 +310,7 @@ partial class LogWriter
             _streamWriter?.Dispose();
         }
     }
+
 }
 ```
 

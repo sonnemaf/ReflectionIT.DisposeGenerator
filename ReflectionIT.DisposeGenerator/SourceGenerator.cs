@@ -86,6 +86,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     "    Dispose(disposing: true);",
                     "    global::System.GC.SuppressFinalize(this);",
                     "}");
+                builder.AddEmptyLine();
             }
 
             //const string valueTaskText = "ValueTask";
@@ -107,6 +108,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     "    await DisposeAsyncCore().ConfigureAwait(false);",
                     "    global::System.GC.SuppressFinalize(this);",
                     "}");
+                builder.AddEmptyLine();
             }
 
             (string isDisposedType, string isDisposedReturnCheck, string isDisposedCheck, string? setIsDisposed) = dtInfo.IsThreadSafe
@@ -132,12 +134,14 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     $$"""~{{dtInfo.TypeSymbol.Name}}() {""",
                     "    Dispose(disposing: false);",
                     "}");
+                builder.AddEmptyLine();
                 builder.AddXmlCommentLines(
                     "<summary>",
                     "Releases unmanaged resources held by the current instance.",
                     "</summary>");
                 builder.AddStatements(
                     $$"""{{accessModifiers}} partial void ReleaseUnmanagedResources();""");
+                builder.AddEmptyLine();
             }
 
             if (generateDispose || generateAsyncDispose) {
@@ -148,6 +152,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                         : "Tracks whether the current instance has been disposed. This field uses \"bool\" and must not be modified manually.",
                     "</summary>");
                 builder.AddStatements($"private {isDisposedType} _isDisposed;");
+                builder.AddEmptyLine();
 
                 if (dtInfo.GenerateThrowIfDisposed) {
                     builder.AddXmlCommentLines(
@@ -165,6 +170,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     }
 
                     builder.AddStatements("}");
+                    builder.AddEmptyLine();
                 }
             }
 
@@ -203,6 +209,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                 builder.AddStatements(
                    baseDisposed,
                    "}");
+                builder.AddEmptyLine();
             }
 
             if (generateAsyncDispose) {
@@ -246,6 +253,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                 builder.AddStatements(
                    baseDisposed,
                    "}");
+                builder.AddEmptyLine();
             }
 
             builder.EndPartialType(dtInfo.TypeSymbol);
