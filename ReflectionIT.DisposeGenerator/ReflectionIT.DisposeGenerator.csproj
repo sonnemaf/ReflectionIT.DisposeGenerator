@@ -13,10 +13,16 @@
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/sonnemaf/ReflectionIT.DisposeGenerator</RepositoryUrl>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-        <PackageReleaseNotes>
-            Introduced HasUnmanagedResources property to DisposableAttribute and updated the source generator to handle finalizers and ReleaseUnmanagedResources partial methods.
-            Introduced ExplicitInterfaceImplementation property to DisposableAttribute class and updated the source generator to implement the IDisposable interface explicitly.
-        </PackageReleaseNotes>
+		<PackageReleaseNotes>
+			Changes since version 0.2.0:
+			- Added XML documentation to generated dispose members and the generated _isDisposed field.
+			- Added ThrowIfDisposed() generation with the new DisposableAttribute.GenerateThrowIfDisposed option, including inheritance-aware overrides.
+			- Changed generated Dispose(bool) and DisposeAsyncCore() methods to use early-return guards when already disposed.
+			- Added support for blank lines between generated members for improved readability.
+			- Improved async dispose generation and inheritance handling, including OverrideDisposeAsyncCore scenarios.
+			- Added RITDG001 to report an error when a type annotated with [Disposable] is not declared partial.
+			- Added HasUnmanagedResources and ExplicitInterfaceImplementation support.
+		</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
