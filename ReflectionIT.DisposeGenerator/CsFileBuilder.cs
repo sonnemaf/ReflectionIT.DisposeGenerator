@@ -3,7 +3,7 @@ using System.CodeDom.Compiler;
 
 namespace ReflectionIT.DisposeGenerator;
 
-public sealed class CsFileBuilder : ICsFileBuilder {
+internal sealed class CsFileBuilder : ICsFileBuilder {
     private bool _isFileScoped;
     private bool _hasNamespace;
     private readonly StringWriter _stringWriter;

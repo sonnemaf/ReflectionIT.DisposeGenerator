@@ -11,11 +11,19 @@ namespace ReflectionIT.DisposeGenerator;
 [Generator]
 public sealed class SourceGenerator : IIncrementalGenerator {
 
+    internal static readonly DiagnosticDescriptor TypeMustBePartial = new(
+        id: "RITDG001",
+        title: "Disposable type must be partial",
+        messageFormat: "Type '{0}' is annotated with [Disposable] and must be declared partial for ReflectionIT.DisposeGenerator to generate code.",
+        category: "ReflectionIT.DisposeGenerator",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     public void Initialize(IncrementalGeneratorInitializationContext context) {
 
         var disposableInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
                 typeof(DisposableAttribute).FullName,
-                predicate: static (node, cancel) => IsValidDisposableNode(node),
+                predicate: static (node, cancel) => node is TypeDeclarationSyntax,
                 transform: static (context, cancel) =>
                     new DisposableInfo(
                         (ITypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!,
@@ -51,6 +59,11 @@ public sealed class SourceGenerator : IIncrementalGenerator {
         }
 
         foreach (var dtInfo in types) {
+
+            if (!dtInfo.IsPartial) {
+                context.ReportDiagnostic(Diagnostic.Create(TypeMustBePartial, dtInfo.TypeDeclarationSyntax.Identifier.GetLocation(), dtInfo.TypeSymbol.Name));
+                continue;
+            }
 
             var disposeInfos = tuple.Right.Left.Where(d => SymbolEqualityComparer.Default.Equals(d.ContainingType, dtInfo.TypeSymbol)).ToDictionary(p => p.MemberName)!;
             var asyncDisposeInfos = tuple.Right.Right.Where(d => SymbolEqualityComparer.Default.Equals(d.ContainingType, dtInfo.TypeSymbol)).ToDictionary(p => p.MemberName)!;
@@ -274,19 +287,6 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                 builder.AddStatements($"    {item.MemberName} = null;");
             }
         }
-    }
-
-    internal static bool IsValidDisposableNode(SyntaxNode node) {
-        // Partrial class
-        if (node is ClassDeclarationSyntax classType) {
-            return classType.Modifiers.Any(SyntaxKind.PartialKeyword);
-        }
-        // partial record
-        if (node is RecordDeclarationSyntax recordType) {
-            return recordType.Modifiers.Any(SyntaxKind.PartialKeyword);
-        }
-        // partial struct
-        return node is StructDeclarationSyntax stuctType ? stuctType.Modifiers.Any(SyntaxKind.PartialKeyword) : false;
     }
 
     internal static bool IsValidDisposeNode(SyntaxNode node) {

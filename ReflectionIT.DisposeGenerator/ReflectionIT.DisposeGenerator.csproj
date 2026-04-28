@@ -47,4 +47,10 @@
 	  <ProjectReference Include="..\ReflectionIT.DisposeGenerator.Attributes\ReflectionIT.DisposeGenerator.Attributes.csproj" PrivateAssets="all" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>ReflectionIT.DisposeGenerator.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
 </Project>

@@ -8,6 +8,7 @@ namespace ReflectionIT.DisposeGenerator;
 internal class DisposableInfo {
 
     public ITypeSymbol TypeSymbol { get; }
+    public TypeDeclarationSyntax TypeDeclarationSyntax { get; }
 
     public bool IsThreadSafe { get; }
     public bool OverrideDispose { get; }
@@ -18,13 +19,16 @@ internal class DisposableInfo {
 
     public bool IsSealed { get; }
     public bool IsValueType { get; }
+    public bool IsPartial { get; }
 
 
     public DisposableInfo(ITypeSymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax) {
         TypeSymbol = typeSymbol;
+        TypeDeclarationSyntax = typeDeclarationSyntax;
 
         IsSealed = typeSymbol.IsSealed;
         IsValueType = typeSymbol.IsValueType;
+        IsPartial = typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword);
 
         var attribute = typeSymbol.GetAttributes().First(a => a.AttributeClass?.ToDisplayString() == typeof(DisposableAttribute).FullName);
 
