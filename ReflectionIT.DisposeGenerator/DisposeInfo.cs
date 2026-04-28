@@ -12,14 +12,14 @@ internal class DisposeInfo : IEquatable<DisposeInfo?> {
 
     public bool SetToNull { get; }
 
-    public DisposeInfo(ISymbol symbol) {
+    public DisposeInfo(ISymbol symbol, string typeName) {
 
         MemberName = symbol.Name;
 
         ContainingType = symbol.ContainingType;
 
         var attribute = symbol.GetAttributes()
-             .First(a => a.AttributeClass?.ToDisplayString() == typeof(DisposeAttribute).FullName);
+             .First(a => a.AttributeClass?.ToDisplayString() == typeName);
 
         SetToNull = attribute.NamedArguments.FirstOrDefault(n => n.Key == nameof(DisposeAttribute.SetToNull)).Value.ToCSharpString() == "true";
     }

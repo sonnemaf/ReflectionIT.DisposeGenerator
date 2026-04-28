@@ -26,7 +26,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                 typeof(DisposeAttribute).FullName,
                 predicate: static (node, cancel) => IsValidDisposeNode(node),
                 transform: static (context, cancel) =>
-                    new DisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!)
+                    new DisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!, typeof(DisposeAttribute).FullName)
             );
 
         var asyncDisposeInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
@@ -174,7 +174,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
                 foreach (var item in disposeInfos.Values) {
                     if (!asyncDisposeInfos.ContainsKey(item.MemberName)) {
-                        builder.AddStatements($"            {item.MemberName}?.Dispose();");
+                        builder.AddStatements($"        {item.MemberName}?.Dispose();");
                     }
                 }
 
