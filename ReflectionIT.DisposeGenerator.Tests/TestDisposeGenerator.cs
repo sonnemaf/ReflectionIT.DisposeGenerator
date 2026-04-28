@@ -49,7 +49,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -91,15 +91,14 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.SecondLogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -138,7 +137,7 @@ public class TestDisposeGenerator {
                     }
                 }
 
-                """)));
+                """));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -178,7 +177,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -220,11 +219,11 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -264,7 +263,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -307,11 +306,11 @@ public class TestDisposeGenerator {
                             _streamWriter = null;
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -352,7 +351,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -421,11 +420,11 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -465,7 +464,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -507,11 +506,11 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -557,7 +556,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriterWithAnExtraIntPtr.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -612,11 +611,11 @@ public class TestDisposeGenerator {
                             ReleaseUnmanagedResources();
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -655,7 +654,7 @@ public class TestDisposeGenerator {
 
         // List of expected generated sources
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -696,11 +695,11 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -738,7 +737,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -771,11 +770,11 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -827,7 +826,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -874,14 +873,13 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.SecondLogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -919,11 +917,11 @@ public class TestDisposeGenerator {
                             await base.DisposeAsyncCore().ConfigureAwait(false);
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -961,7 +959,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -1003,11 +1001,11 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -1045,7 +1043,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -1092,11 +1090,11 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -1132,7 +1130,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -1173,11 +1171,11 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -1210,7 +1208,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -1252,11 +1250,11 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
+
 
         context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1061").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 47, 22, 47, 30).WithArguments("string", "Dispose"));
 
@@ -1291,7 +1289,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -1338,11 +1336,10 @@ public class TestDisposeGenerator {
                             }
                         }
 
-
                     }
                 }
 
-                """)));
+                """));
 
         context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1061").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 52, 28, 52, 40).WithArguments("string", "DisposeAsync"));
 
@@ -1378,7 +1375,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -1416,7 +1413,7 @@ public class TestDisposeGenerator {
                     }
                 }
 
-                """)));
+                """));
 
         context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0535").WithSpan(34, 38, 34, 49).WithArguments("X.LogWriter", "System.IDisposable.Dispose()"));
         context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0115").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 33, 33, 33, 40).WithArguments("X.LogWriter.Dispose(bool)"));
@@ -1454,7 +1451,7 @@ public class TestDisposeGenerator {
         };
 
         context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
-            NormalizeGeneratedSource($$"""
+            $$"""
                 {{HEADER_CODE}}
                 namespace X
                 {
@@ -1494,7 +1491,7 @@ public class TestDisposeGenerator {
                     }
                 }
 
-                """)));
+                """));
 
         context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0535").WithSpan(34, 38, 34, 54).WithArguments("X.LogWriter", "System.IAsyncDisposable.DisposeAsync()"));
         context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0115").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 35, 75, 35, 91).WithArguments("X.LogWriter.DisposeAsyncCore()"));
@@ -1541,17 +1538,6 @@ public class TestDisposeGenerator {
         });
 
         await context.RunAsync();
-    }
-
-    private static string NormalizeGeneratedSource(string source) {
-        var newLine = Environment.NewLine;
-
-        return source
-            .Replace("}" + newLine + newLine + "        ///", "}" + newLine + "        " + newLine + "        ///")
-            .Replace(";" + newLine + newLine + "        ///", ";" + newLine + "        " + newLine + "        ///")
-            .Replace("Dispose();" + newLine + "        }" + newLine + "    }", "Dispose();" + newLine + "        }" + newLine + "        " + newLine + "    }")
-            .Replace("}" + newLine + newLine + newLine + "    }", "}" + newLine + "        " + newLine + "    }")
-            .Replace("}" + newLine + newLine + "    }", "}" + newLine + "        " + newLine + "    }");
     }
 
     public const string HEADER_CODE = """

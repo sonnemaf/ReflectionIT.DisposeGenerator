@@ -84,8 +84,10 @@ internal sealed class CsFileBuilder : ICsFileBuilder {
         if (condition is false) {
             return this;
         }
-
+        var i = _indentedTextWriter.Indent;
+        _indentedTextWriter.Indent = 0;
         _indentedTextWriter.WriteLine();
+        _indentedTextWriter.Indent = i;
         return this;
     }
 
