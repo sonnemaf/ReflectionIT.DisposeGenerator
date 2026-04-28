@@ -12,6 +12,7 @@ internal class DisposableInfo {
     public bool IsThreadSafe { get; }
     public bool OverrideDispose { get; }
     public bool OverrideDisposeAsyncCore { get; set; }
+    public bool GenerateThrowIfDisposed { get; }
     public bool ExplicitInterfaceImplementation { get; }
     public bool HasUnmanagedResources { get; }
 
@@ -30,11 +31,13 @@ internal class DisposableInfo {
         IsThreadSafe = ReadBoolean(attribute, nameof(DisposableAttribute.IsThreadSafe));
         OverrideDispose = ReadBoolean(attribute, nameof(DisposableAttribute.OverrideDispose));
         OverrideDisposeAsyncCore = ReadBoolean(attribute, nameof(DisposableAttribute.OverrideDisposeAsyncCore));
+        GenerateThrowIfDisposed = ReadBoolean(attribute, nameof(DisposableAttribute.GenerateThrowIfDisposed), defaultValue: true);
         ExplicitInterfaceImplementation = ReadBoolean(attribute, nameof(DisposableAttribute.ExplicitInterfaceImplementation));
         HasUnmanagedResources = ReadBoolean(attribute, nameof(DisposableAttribute.HasUnmanagedResources));
 
-        static bool ReadBoolean(AttributeData attribute, string propertyName) {
-            return attribute.NamedArguments.FirstOrDefault(n => n.Key == propertyName).Value.ToCSharpString() == "true";
+        static bool ReadBoolean(AttributeData attribute, string propertyName, bool defaultValue = false) {
+            var namedArgument = attribute.NamedArguments.FirstOrDefault(n => n.Key == propertyName);
+            return namedArgument.Key is null ? defaultValue : namedArgument.Value.ToCSharpString() == "true";
         }
     }
 }

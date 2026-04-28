@@ -109,12 +109,14 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     "}");
             }
 
-            (string isDisposedType, string isDisposedReturnCheck, string? setIsDisposed) = dtInfo.IsThreadSafe
-                ? ("int", "global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0", null)
-                : ("bool", "_isDisposed", "_isDisposed = true;");
+            (string isDisposedType, string isDisposedReturnCheck, string isDisposedCheck, string? setIsDisposed) = dtInfo.IsThreadSafe
+                ? ("int", "global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0", "_isDisposed != 0", null)
+                : ("bool", "_isDisposed", "_isDisposed", "_isDisposed = true;");
 
             string accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
             string? baseDisposed = null;
+            string throwIfDisposedAccessModifiers = dtInfo.IsValueType ? "private" : HasDisposableBaseThatGeneratesThrowIfDisposed(dtInfo.TypeSymbol) ? "protected override" : dtInfo.IsSealed ? "private" : "protected virtual";
+            string? baseThrowIfDisposed = throwIfDisposedAccessModifiers == "protected override" ? "    base.ThrowIfDisposed();" : null;
 
             if (dtInfo.OverrideDispose && generateDispose && accessModifiers.Contains("virtual")) {
                 accessModifiers = "protected override";
@@ -140,6 +142,24 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
             if (generateDispose || generateAsyncDispose) {
                 builder.AddStatements($"private {isDisposedType} _isDisposed;");
+
+                if (dtInfo.GenerateThrowIfDisposed) {
+                    builder.AddXmlCommentLines(
+                        "<summary>",
+                        "Throws an exception if the current instance has been disposed.",
+                        "</summary>");
+                    builder.AddStatements(
+                        $$"""{{throwIfDisposedAccessModifiers}} void ThrowIfDisposed() {""",
+                        $$"""    if ({{isDisposedCheck}}) {""",
+                        $$"""        throw new global::System.ObjectDisposedException(nameof({{dtInfo.TypeSymbol.Name}}));""",
+                        "    }");
+
+                    if (!string.IsNullOrWhiteSpace(baseThrowIfDisposed)) {
+                        builder.AddStatements(baseThrowIfDisposed);
+                    }
+
+                    builder.AddStatements("}");
+                }
             }
 
             if (generateDispose) {
@@ -257,6 +277,21 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
     internal static bool IsValidDisposeNode(SyntaxNode node) {
         return node is VariableDeclaratorSyntax or PropertyDeclarationSyntax;
+    }
+
+    private static bool HasDisposableBaseThatGeneratesThrowIfDisposed(ITypeSymbol typeSymbol) {
+        var baseType = typeSymbol.BaseType;
+        while (baseType is not null) {
+            var disposableAttribute = baseType.GetAttributes().FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == typeof(DisposableAttribute).FullName);
+            if (disposableAttribute is not null) {
+                var generateThrowIfDisposed = disposableAttribute.NamedArguments.FirstOrDefault(n => n.Key == nameof(DisposableAttribute.GenerateThrowIfDisposed));
+                return generateThrowIfDisposed.Key is null || generateThrowIfDisposed.Value.ToCSharpString() == "true";
+            }
+
+            baseType = baseType.BaseType;
+        }
+
+        return false;
     }
 
 }

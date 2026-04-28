@@ -64,6 +64,14 @@ public class TestDisposeGenerator {
                         }
                         private bool _isDisposed;
                         /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        protected virtual void ThrowIfDisposed() {
+                            if (_isDisposed) {
+                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
+                            }
+                        }
+                        /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
@@ -90,6 +98,15 @@ public class TestDisposeGenerator {
                     partial class SecondLogWriter
                     {
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        protected override void ThrowIfDisposed() {
+                            if (_isDisposed) {
+                                throw new global::System.ObjectDisposedException(nameof(SecondLogWriter));
+                            }
+                            base.ThrowIfDisposed();
+                        }
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -162,6 +179,14 @@ public class TestDisposeGenerator {
                         }
                         private bool _isDisposed;
                         /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        protected virtual void ThrowIfDisposed() {
+                            if (_isDisposed) {
+                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
+                            }
+                        }
+                        /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
@@ -231,6 +256,14 @@ public class TestDisposeGenerator {
                             global::System.GC.SuppressFinalize(this);
                         }
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        protected virtual void ThrowIfDisposed() {
+                            if (_isDisposed) {
+                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
+                            }
+                        }
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -313,6 +346,14 @@ public class TestDisposeGenerator {
                             global::System.GC.SuppressFinalize(this);
                         }
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        protected virtual void ThrowIfDisposed() {
+                            if (_isDisposed) {
+                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
+                            }
+                        }
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -398,6 +439,14 @@ public class TestDisposeGenerator {
                             global::System.GC.SuppressFinalize(this);
                         }
                         private bool _isDisposed;
+                        /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        protected virtual void ThrowIfDisposed() {
+                            if (_isDisposed) {
+                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
+                            }
+                        }
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -485,6 +534,14 @@ public class TestDisposeGenerator {
                         protected virtual partial void ReleaseUnmanagedResources();
                         private bool _isDisposed;
                         /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        protected virtual void ThrowIfDisposed() {
+                            if (_isDisposed) {
+                                throw new global::System.ObjectDisposedException(nameof(LogWriterWithAnExtraIntPtr));
+                            }
+                        }
+                        /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
@@ -555,6 +612,14 @@ public class TestDisposeGenerator {
                         }
                         private int _isDisposed;
                         /// <summary>
+                        /// Throws an exception if the current instance has been disposed.
+                        /// </summary>
+                        protected virtual void ThrowIfDisposed() {
+                            if (_isDisposed != 0) {
+                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
+                            }
+                        }
+                        /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
@@ -562,6 +627,74 @@ public class TestDisposeGenerator {
                             if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0) {
                                 return;
                             }
+                            if (disposing) {
+                                StreamWriter?.Dispose();
+                            }
+                        }
+                    }
+                }
+
+                """));
+
+        context.SolutionTransforms.Add((solution, projectId) => {
+            var project = solution.GetProject(projectId)!;
+            var parse = (CSharpParseOptions)project.ParseOptions!;
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+        });
+
+        await context.RunAsync();
+    }
+
+    [Fact]
+    public async Task TestNoThrowIfDisposedWhenDisabled() {
+        var context = new CSharpSourceGeneratorTest<SourceGenerator, DefaultVerifier> {
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net100,
+            TestCode = $$"""
+                using System;
+                using System.IO;
+
+                {{ATTRIBUTE_CODE_IN_TEST}}
+
+                namespace X {
+
+                    [Disposable(GenerateThrowIfDisposed = false)]
+                    public partial class LogWriter : IDisposable {
+
+                        [Dispose]
+                        private StreamWriter StreamWriter { get; }
+
+                        public LogWriter(string path) => StreamWriter = new StreamWriter(path);
+
+                        public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+                    }
+                }
+                """,
+        };
+
+        context.TestState.GeneratedSources.Add((typeof(SourceGenerator), "X.LogWriter.g.cs",
+            $$"""
+                {{HEADER_CODE}}
+                namespace X
+                {
+                    partial class LogWriter
+                    {
+                        /// <summary>
+                        /// Releases all resources used by the current instance.
+                        /// </summary>
+                        public void Dispose() {
+                            Dispose(disposing: true);
+                            global::System.GC.SuppressFinalize(this);
+                        }
+                        private bool _isDisposed;
+                        /// <summary>
+                        /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
+                        /// </summary>
+                        /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                        protected virtual void Dispose(bool disposing) {
+                            if (_isDisposed) {
+                                return;
+                            }
+                            _isDisposed = true;
                             if (disposing) {
                                 StreamWriter?.Dispose();
                             }
@@ -601,6 +734,7 @@ public class TestDisposeGenerator {
                 public class DisposableAttribute : Attribute {
                     public bool OverrideDispose { get; set; }
                     public bool OverrideDisposeAsyncCore { get; set; }
+                    public bool GenerateThrowIfDisposed { get; set; } = true;
                     public bool ExplicitInterfaceImplementation { get; set; }
                     public bool IsThreadSafe { get; set; }
                     public bool HasUnmanagedResources { get; set; }

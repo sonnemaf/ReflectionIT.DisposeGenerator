@@ -16,6 +16,32 @@ A source generator package that implements the Dispose and Async Dispose pattern
 
 Install the NuGet package, then annotate a **partial** class or struct with the ```Disposable``` attribute.
 
+By default, the generator also creates a ```ThrowIfDisposed``` method that you can call from members such as ```WriteLine``` to guard against use after disposal. Set ```GenerateThrowIfDisposed = false``` to skip generating this helper.
+
+## Recommended use of ThrowIfDisposed
+
+Call ```ThrowIfDisposed()``` at the start of public instance members that depend on resources managed by the generated dispose pattern.
+
+```cs
+using ReflectionIT.DisposeGenerator.Attributes;
+
+[Disposable]
+public partial class LogWriter : IDisposable {
+
+    [Dispose]
+    private readonly StreamWriter _streamWriter;
+
+    public LogWriter(string path) => _streamWriter = new StreamWriter(path);
+
+    public void WriteLine(string text) {
+        ThrowIfDisposed();
+        _streamWriter.WriteLine($"{DateTime.Now}\t{text}");
+    }
+}
+```
+
+This helps fail fast with an ```ObjectDisposedException``` when the instance is used after it has been disposed.
+
 Annotate properties or fields with the ```Dispose``` attribute. Use ```SetToNull``` when the property or field holds a large object and should be set to ```null``` after disposal.
 
 ```cs
@@ -29,7 +55,10 @@ public partial class LogWriter : IDisposable {
 
     public LogWriter(string path) => StreamWriter = new StreamWriter(path);
 
-    public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+    public void WriteLine(string text) {
+        ThrowIfDisposed();
+        StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
+    }
 }
 ```
 
@@ -47,6 +76,15 @@ partial class LogWriter
     }
 
     private bool _isDisposed;
+
+    /// <summary>
+    /// Throws an exception if the current instance has been disposed.
+    /// </summary>
+    protected virtual void ThrowIfDisposed() {
+        if (_isDisposed) {
+            throw new global::System.ObjectDisposedException(nameof(LogWriter));
+        }
+    }
 
     /// <summary>
     /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
@@ -93,6 +131,16 @@ This generates the following **partial** class, which disposes the ```SecondStre
 partial class SecondLogWriter
 {
     private bool _isDisposed;
+
+    /// <summary>
+    /// Throws an exception if the current instance has been disposed.
+    /// </summary>
+    protected override void ThrowIfDisposed() {
+        if (_isDisposed) {
+            throw new global::System.ObjectDisposedException(nameof(SecondLogWriter));
+        }
+        base.ThrowIfDisposed();
+    }
 
     /// <summary>
     /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
@@ -167,6 +215,15 @@ partial class LogWriterWithAnExtraIntPtr
     private bool _isDisposed;
 
     /// <summary>
+    /// Throws an exception if the current instance has been disposed.
+    /// </summary>
+    protected virtual void ThrowIfDisposed() {
+        if (_isDisposed) {
+            throw new global::System.ObjectDisposedException(nameof(LogWriterWithAnExtraIntPtr));
+        }
+    }
+
+    /// <summary>
     /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
     /// </summary>
     /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
@@ -214,6 +271,15 @@ partial class LogWriter
     }
 
     private int _isDisposed;
+
+    /// <summary>
+    /// Throws an exception if the current instance has been disposed.
+    /// </summary>
+    protected virtual void ThrowIfDisposed() {
+        if (_isDisposed != 0) {
+            throw new global::System.ObjectDisposedException(nameof(LogWriter));
+        }
+    }
 
     /// <summary>
     /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
