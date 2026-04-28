@@ -141,6 +141,12 @@ public sealed class SourceGenerator : IIncrementalGenerator {
             }
 
             if (generateDispose || generateAsyncDispose) {
+                builder.AddXmlCommentLines(
+                    "<summary>",
+                    dtInfo.IsThreadSafe
+                        ? "Tracks whether the current instance has been disposed. This field uses \"int\" for thread-safe state transitions and must not be modified manually."
+                        : "Tracks whether the current instance has been disposed. This field uses \"bool\" and must not be modified manually.",
+                    "</summary>");
                 builder.AddStatements($"private {isDisposedType} _isDisposed;");
 
                 if (dtInfo.GenerateThrowIfDisposed) {

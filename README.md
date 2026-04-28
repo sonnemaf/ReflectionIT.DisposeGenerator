@@ -42,6 +42,8 @@ public partial class LogWriter : IDisposable {
 
 This helps fail fast with an ```ObjectDisposedException``` when the instance is used after it has been disposed.
 
+The generated ```_isDisposed``` field tracks the disposal state and should not be modified manually. By default it is generated as a ```bool```. When ```IsThreadSafe = true``` is used, it is generated as an ```int``` so ```Interlocked.CompareExchange``` can be used safely.
+
 Annotate properties or fields with the ```Dispose``` attribute. Use ```SetToNull``` when the property or field holds a large object and should be set to ```null``` after disposal.
 
 ```cs
@@ -75,6 +77,9 @@ partial class LogWriter
         global::System.GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+    /// </summary>
     private bool _isDisposed;
 
     /// <summary>
@@ -130,6 +135,9 @@ This generates the following **partial** class, which disposes the ```SecondStre
 ```cs
 partial class SecondLogWriter
 {
+    /// <summary>
+    /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+    /// </summary>
     private bool _isDisposed;
 
     /// <summary>
@@ -212,6 +220,9 @@ partial class LogWriterWithAnExtraIntPtr
     /// </summary>
     protected virtual partial void ReleaseUnmanagedResources();
 
+    /// <summary>
+    /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+    /// </summary>
     private bool _isDisposed;
 
     /// <summary>
@@ -270,6 +281,9 @@ partial class LogWriter
         global::System.GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    /// Tracks whether the current instance has been disposed. This field uses "int" for thread-safe state transitions and must not be modified manually.
+    /// </summary>
     private int _isDisposed;
 
     /// <summary>

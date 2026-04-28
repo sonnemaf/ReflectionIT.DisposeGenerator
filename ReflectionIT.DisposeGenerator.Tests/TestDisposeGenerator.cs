@@ -62,6 +62,9 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+                        /// </summary>
                         private bool _isDisposed;
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
@@ -97,6 +100,9 @@ public class TestDisposeGenerator {
                 {
                     partial class SecondLogWriter
                     {
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+                        /// </summary>
                         private bool _isDisposed;
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
@@ -177,6 +183,9 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+                        /// </summary>
                         private bool _isDisposed;
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
@@ -255,6 +264,9 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+                        /// </summary>
                         private bool _isDisposed;
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
@@ -345,6 +357,9 @@ public class TestDisposeGenerator {
                             await DisposeAsyncCore().ConfigureAwait(false);
                             global::System.GC.SuppressFinalize(this);
                         }
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+                        /// </summary>
                         private bool _isDisposed;
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
@@ -438,6 +453,9 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+                        /// </summary>
                         private bool _isDisposed;
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
@@ -532,6 +550,9 @@ public class TestDisposeGenerator {
                         /// Releases unmanaged resources held by the current instance.
                         /// </summary>
                         protected virtual partial void ReleaseUnmanagedResources();
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+                        /// </summary>
                         private bool _isDisposed;
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
@@ -610,6 +631,9 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field uses "int" for thread-safe state transitions and must not be modified manually.
+                        /// </summary>
                         private int _isDisposed;
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
@@ -685,6 +709,9 @@ public class TestDisposeGenerator {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
                         }
+                        /// <summary>
+                        /// Tracks whether the current instance has been disposed. This field uses "bool" and must not be modified manually.
+                        /// </summary>
                         private bool _isDisposed;
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
