@@ -98,9 +98,9 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     "}");
             }
 
-            (string isDisposedType, string isDisposedCheck, string? setIsDisposed) = dtInfo.IsThreadSafe
-                ? ("int", "global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) == 0", null)
-                : ("bool", "!_isDisposed", "_isDisposed = true;");
+            (string isDisposedType, string isDisposedReturnCheck, string? setIsDisposed) = dtInfo.IsThreadSafe
+                ? ("int", "global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0", null)
+                : ("bool", "_isDisposed", "_isDisposed = true;");
 
             string accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
             string? baseDisposed = null;
@@ -126,29 +126,30 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
                 builder.AddStatements(
                     $$"""{{accessModifiers}} void Dispose(bool disposing) {""",
-                    $$"""    if ({{isDisposedCheck}}) {""",
-                    $"""        {setIsDisposed}""",
-                     """        if (disposing) {""");
+                    $$"""    if ({{isDisposedReturnCheck}}) {""",
+                     "        return;",
+                     "    }",
+                     $"""    {setIsDisposed}""",
+                      """    if (disposing) {""");
 
                 foreach (var item in disposeInfos.Values) {
-                    builder.AddStatements($"            {item.MemberName}?.Dispose();");
+                    builder.AddStatements($"        {item.MemberName}?.Dispose();");
                 }
 
                 foreach (var item in asyncDisposeInfos.Values) {
                     if (!disposeInfos.ContainsKey(item.MemberName)) {
-                        builder.AddStatements($"            if ({item.MemberName} is IDisposable local{item.MemberName}) local{item.MemberName}.Dispose();");
+                        builder.AddStatements($"        if ({item.MemberName} is IDisposable local{item.MemberName}) local{item.MemberName}.Dispose();");
                     }
                 }
 
 
-                builder.AddStatements("        }");
+                builder.AddStatements("    }");
 
-                builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "        ReleaseUnmanagedResources();");
+                builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "    ReleaseUnmanagedResources();");
 
                 SetNull(disposeInfos, asyncDisposeInfos, builder);
 
                 builder.AddStatements(
-                   "    }",
                    baseDisposed,
                    "}");
             }
@@ -164,26 +165,27 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
                 builder.AddStatements(
                     $$"""{{accessModifiers}} async {{valueTaskText}} DisposeAsyncCore() {""",
-                    $$"""    if ({{isDisposedCheck}}) {""",
-                     $"""        {setIsDisposed}""");
+                    $$"""    if ({{isDisposedReturnCheck}}) {""",
+                     "        return;",
+                     "    }",
+                     $"""    {setIsDisposed}""");
 
                 foreach (var item in asyncDisposeInfos.Values) {
-                    builder.AddStatements($$"""        if ({{item.MemberName}} != null) {""",
-                                          $"            await {item.MemberName}.DisposeAsync().ConfigureAwait({item.ConfigureAwait.ToString().ToLower()});",
-                                           "        }");
+                    builder.AddStatements($$"""    if ({{item.MemberName}} != null) {""",
+                                          $"        await {item.MemberName}.DisposeAsync().ConfigureAwait({item.ConfigureAwait.ToString().ToLower()});",
+                                           "    }");
                 }
 
                 foreach (var item in disposeInfos.Values) {
                     if (!asyncDisposeInfos.ContainsKey(item.MemberName)) {
-                        builder.AddStatements($"        {item.MemberName}?.Dispose();");
+                        builder.AddStatements($"    {item.MemberName}?.Dispose();");
                     }
                 }
 
-                builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "        ReleaseUnmanagedResources();");
+                builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "    ReleaseUnmanagedResources();");
                 SetNull(disposeInfos, asyncDisposeInfos, builder);
 
                 builder.AddStatements(
-                   "    }",
                    baseDisposed,
                    "}");
             }
@@ -203,7 +205,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
         static void SetNull(Dictionary<string, DisposeInfo> disposeInfos, Dictionary<string, AsyncDisposeInfo> asyncDisposeInfos, CsFileBuilder builder) {
             foreach (var item in disposeInfos.Values.Where(static p => p.SetToNull).Union(asyncDisposeInfos.Values.Where(static p => p.SetToNull))) {
-                builder.AddStatements($"        {item.MemberName} = null;");
+                builder.AddStatements($"    {item.MemberName} = null;");
             }
         }
     }

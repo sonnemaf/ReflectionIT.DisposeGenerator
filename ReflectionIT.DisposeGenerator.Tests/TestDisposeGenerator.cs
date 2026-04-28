@@ -61,11 +61,12 @@ public class TestDisposeGenerator {
                         }
                         private bool _isDisposed;
                         protected virtual void Dispose(bool disposing) {
-                            if (!_isDisposed) {
-                                _isDisposed = true;
-                                if (disposing) {
-                                    StreamWriter?.Dispose();
-                                }
+                            if (_isDisposed) {
+                                return;
+                            }
+                            _isDisposed = true;
+                            if (disposing) {
+                                StreamWriter?.Dispose();
                             }
                         }
                     }
@@ -83,11 +84,12 @@ public class TestDisposeGenerator {
                     {
                         private bool _isDisposed;
                         protected override void Dispose(bool disposing) {
-                            if (!_isDisposed) {
-                                _isDisposed = true;
-                                if (disposing) {
-                                    SecondStreamWriter?.Dispose();
-                                }
+                            if (_isDisposed) {
+                                return;
+                            }
+                            _isDisposed = true;
+                            if (disposing) {
+                                SecondStreamWriter?.Dispose();
                             }
                             base.Dispose(disposing);
                         }
@@ -146,11 +148,12 @@ public class TestDisposeGenerator {
                         }
                         private bool _isDisposed;
                         protected virtual void Dispose(bool disposing) {
-                            if (!_isDisposed) {
-                                _isDisposed = true;
-                                if (disposing) {
-                                    StreamWriter?.Dispose();
-                                }
+                            if (_isDisposed) {
+                                return;
+                            }
+                            _isDisposed = true;
+                            if (disposing) {
+                                StreamWriter?.Dispose();
                             }
                         }
                     }
@@ -208,13 +211,14 @@ public class TestDisposeGenerator {
                         }
                         private bool _isDisposed;
                         protected virtual void Dispose(bool disposing) {
-                            if (!_isDisposed) {
-                                _isDisposed = true;
-                                if (disposing) {
-                                    _streamWriter?.Dispose();
-                                }
-                                _streamWriter = null;
+                            if (_isDisposed) {
+                                return;
                             }
+                            _isDisposed = true;
+                            if (disposing) {
+                                _streamWriter?.Dispose();
+                            }
+                            _streamWriter = null;
                         }
                     }
                 }
@@ -276,19 +280,21 @@ public class TestDisposeGenerator {
                         }
                         private bool _isDisposed;
                         protected virtual void Dispose(bool disposing) {
-                            if (!_isDisposed) {
-                                _isDisposed = true;
-                                if (disposing) {
-                                    _streamWriter?.Dispose();
-                                }
+                            if (_isDisposed) {
+                                return;
+                            }
+                            _isDisposed = true;
+                            if (disposing) {
+                                _streamWriter?.Dispose();
                             }
                         }
                         protected virtual async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
-                            if (!_isDisposed) {
-                                _isDisposed = true;
-                                if (_streamWriter != null) {
-                                    await _streamWriter.DisposeAsync().ConfigureAwait(false);
-                                }
+                            if (_isDisposed) {
+                                return;
+                            }
+                            _isDisposed = true;
+                            if (_streamWriter != null) {
+                                await _streamWriter.DisposeAsync().ConfigureAwait(false);
                             }
                         }
                     }
@@ -346,11 +352,12 @@ public class TestDisposeGenerator {
                         }
                         private bool _isDisposed;
                         protected virtual void Dispose(bool disposing) {
-                            if (!_isDisposed) {
-                                _isDisposed = true;
-                                if (disposing) {
-                                    StreamWriter?.Dispose();
-                                }
+                            if (_isDisposed) {
+                                return;
+                            }
+                            _isDisposed = true;
+                            if (disposing) {
+                                StreamWriter?.Dispose();
                             }
                         }
                     }
@@ -418,13 +425,14 @@ public class TestDisposeGenerator {
                         protected virtual partial void ReleaseUnmanagedResources();
                         private bool _isDisposed;
                         protected virtual void Dispose(bool disposing) {
-                            if (!_isDisposed) {
-                                _isDisposed = true;
-                                if (disposing) {
-                                    StreamWriter?.Dispose();
-                                }
-                                ReleaseUnmanagedResources();
+                            if (_isDisposed) {
+                                return;
                             }
+                            _isDisposed = true;
+                            if (disposing) {
+                                StreamWriter?.Dispose();
+                            }
+                            ReleaseUnmanagedResources();
                         }
                     }
                 }
@@ -480,10 +488,11 @@ public class TestDisposeGenerator {
                         }
                         private int _isDisposed;
                         protected virtual void Dispose(bool disposing) {
-                            if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) == 0) {
-                                if (disposing) {
-                                    StreamWriter?.Dispose();
-                                }
+                            if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0) {
+                                return;
+                            }
+                            if (disposing) {
+                                StreamWriter?.Dispose();
                             }
                         }
                     }

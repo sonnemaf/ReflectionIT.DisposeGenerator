@@ -46,13 +46,14 @@ partial class LogWriter
     private bool _isDisposed;
 
     protected virtual void Dispose(bool disposing) {
-        if (!_isDisposed) {
-            _isDisposed = true;
-            if (disposing) {
-                StreamWriter?.Dispose();
-            }
-            StreamWriter = null;
+        if (_isDisposed) {
+            return;
         }
+        _isDisposed = true;
+        if (disposing) {
+            StreamWriter?.Dispose();
+        }
+        StreamWriter = null;
     }
 }
 ```
@@ -87,11 +88,12 @@ partial class SecondLogWriter
     private bool _isDisposed;
 
     protected override void Dispose(bool disposing) {
-        if (!_isDisposed) {
-            _isDisposed = true;
-            if (disposing) {
-                SecondStreamWriter?.Dispose();
-            }
+        if (_isDisposed) {
+            return;
+        }
+        _isDisposed = true;
+        if (disposing) {
+            SecondStreamWriter?.Dispose();
         }
         base.Dispose(disposing);
     }
@@ -145,13 +147,14 @@ partial class LogWriterWithAnExtraIntPtr
     private bool _isDisposed;
 
     protected virtual void Dispose(bool disposing) {
-        if (!_isDisposed) {
-            _isDisposed = true;
-            if (disposing) {
-                StreamWriter?.Dispose();
-            }
-            ReleaseUnmanagedResources();
+        if (_isDisposed) {
+            return;
         }
+        _isDisposed = true;
+        if (disposing) {
+            StreamWriter?.Dispose();
+        }
+        ReleaseUnmanagedResources();
     }
 }
 ```
@@ -186,10 +189,11 @@ partial class LogWriter
     private int _isDisposed;
 
     protected virtual void Dispose(bool disposing) {
-        if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) == 0) {
-            if (disposing) {
-                _streamWriter?.Dispose();
-            }
+        if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0) {
+            return;
+        }
+        if (disposing) {
+            _streamWriter?.Dispose();
         }
     }
 }
