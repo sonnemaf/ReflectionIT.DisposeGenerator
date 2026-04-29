@@ -130,8 +130,9 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
             string accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
             string? baseDisposed = null;
-            string throwIfDisposedAccessModifiers = dtInfo.IsValueType ? "private" : HasDisposableBaseThatGeneratesThrowIfDisposed(dtInfo.TypeSymbol) ? "protected override" : dtInfo.IsSealed ? "private" : "protected virtual";
-            string? baseThrowIfDisposed = throwIfDisposedAccessModifiers == "protected override" ? "    base.ThrowIfDisposed();" : null;
+            string isDisposedAccessModifiers = dtInfo.IsValueType ? "private" : HasDisposableBase(dtInfo.TypeSymbol) ? "protected override" : dtInfo.IsSealed ? "private" : "protected virtual";
+            string isDisposedGetter = dtInfo.IsThreadSafe ? "_isDisposed != 0" : "_isDisposed";
+            string? baseIsDisposed = isDisposedAccessModifiers == "protected override" ? " || base.IsDisposed" : null;
 
             if (dtInfo.OverrideDispose && generateDispose && accessModifiers.Contains("virtual")) {
                 accessModifiers = "protected override";
@@ -167,20 +168,24 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                 builder.AddStatements($"private {isDisposedType} _isDisposed;");
                 builder.AddEmptyLine();
 
-                if (dtInfo.GenerateThrowIfDisposed) {
+                builder.AddXmlCommentLines(
+                    "<summary>",
+                    "Gets a value indicating whether the current instance has been disposed.",
+                    "</summary>");
+                builder.AddStatements(
+                    $$"""{{isDisposedAccessModifiers}} bool IsDisposed => {{isDisposedGetter}}{{baseIsDisposed}};""");
+                builder.AddEmptyLine();
+
+                if (dtInfo.GenerateThrowIfDisposed && !dtInfo.OverrideDispose && !dtInfo.OverrideDisposeAsyncCore) {
                     builder.AddXmlCommentLines(
                         "<summary>",
                         "Throws an exception if the current instance has been disposed.",
                         "</summary>");
                     builder.AddStatements(
-                        $$"""{{throwIfDisposedAccessModifiers}} void ThrowIfDisposed() {""",
-                        $$"""    if ({{isDisposedCheck}}) {""",
+                        $$"""{{(dtInfo.IsValueType || dtInfo.IsSealed ? "private" : "protected")}} void ThrowIfDisposed() {""",
+                        "    if (IsDisposed) {",
                         $$"""        throw new global::System.ObjectDisposedException(nameof({{dtInfo.TypeSymbol.Name}}));""",
                         "    }");
-
-                    if (!string.IsNullOrWhiteSpace(baseThrowIfDisposed)) {
-                        builder.AddStatements(baseThrowIfDisposed);
-                    }
 
                     builder.AddStatements("}");
                     builder.AddEmptyLine();
@@ -293,13 +298,12 @@ public sealed class SourceGenerator : IIncrementalGenerator {
         return node is VariableDeclaratorSyntax or PropertyDeclarationSyntax;
     }
 
-    private static bool HasDisposableBaseThatGeneratesThrowIfDisposed(ITypeSymbol typeSymbol) {
+    private static bool HasDisposableBase(ITypeSymbol typeSymbol) {
         var baseType = typeSymbol.BaseType;
         while (baseType is not null) {
             var disposableAttribute = baseType.GetAttributes().FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == typeof(DisposableAttribute).FullName);
             if (disposableAttribute is not null) {
-                var generateThrowIfDisposed = disposableAttribute.NamedArguments.FirstOrDefault(n => n.Key == nameof(DisposableAttribute.GenerateThrowIfDisposed));
-                return generateThrowIfDisposed.Key is null || generateThrowIfDisposed.Value.ToCSharpString() == "true";
+                return true;
             }
 
             baseType = baseType.BaseType;

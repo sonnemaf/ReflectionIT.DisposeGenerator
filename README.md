@@ -42,7 +42,7 @@ public partial class LogWriter : IDisposable {
 }
 ```
 
-The generator creates the dispose members for the annotated type, including `_isDisposed` and `ThrowIfDisposed()` by default.
+The generator creates the dispose members for the annotated type, including `_isDisposed`, an `IsDisposed` property, and `ThrowIfDisposed()` by default.
 
 ## Requirements and diagnostics
 
@@ -90,6 +90,7 @@ Depending on the options and the annotated members, the generator can create:
 - `Dispose(bool)`
 - `DisposeAsync()`
 - `DisposeAsyncCore()`
+- `IsDisposed`
 - `ThrowIfDisposed()`
 - `_isDisposed`
 - a finalizer
@@ -97,7 +98,7 @@ Depending on the options and the annotated members, the generator can create:
 
 ## Recommended use of `ThrowIfDisposed`
 
-Call `ThrowIfDisposed()` at the start of public instance members that depend on resources managed by the generated dispose pattern.
+Call `ThrowIfDisposed()` at the start of public instance members that depend on resources managed by the generated dispose pattern. The generated method uses the generated `IsDisposed` property, so derived types can customize disposed-state checks through `IsDisposed` instead of overriding `ThrowIfDisposed()`.
 
 ```cs
 using ReflectionIT.DisposeGenerator.Attributes;
@@ -160,10 +161,15 @@ partial class LogWriter
     private bool _isDisposed;
 
     /// <summary>
+    /// Gets a value indicating whether the current instance has been disposed.
+    /// </summary>
+    protected virtual bool IsDisposed => _isDisposed;
+
+    /// <summary>
     /// Throws an exception if the current instance has been disposed.
     /// </summary>
-    protected virtual void ThrowIfDisposed() {
-        if (_isDisposed) {
+    protected void ThrowIfDisposed() {
+        if (IsDisposed) {
             throw new global::System.ObjectDisposedException(nameof(LogWriter));
         }
     }
@@ -207,6 +213,58 @@ public partial class LogWriter : IAsyncDisposable {
 
 This generates `DisposeAsync()` and `DisposeAsyncCore()`. If the same member also has `[Dispose]`, the generator supports both sync and async cleanup patterns.
 
+```cs
+partial class LogWriter
+{
+    /// <summary>
+    /// Asynchronously releases all resources used by the current instance.
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous dispose operation.
+    /// </returns>
+    public async global::System.Threading.Tasks.ValueTask DisposeAsync() {
+        await DisposeAsyncCore().ConfigureAwait(false);
+        global::System.GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Tracks whether the current instance has been disposed. This field must not be modified manually.
+    /// </summary>
+    private bool _isDisposed;
+
+    /// <summary>
+    /// Gets a value indicating whether the current instance has been disposed.
+    /// </summary>
+    protected virtual bool IsDisposed => _isDisposed;
+
+    /// <summary>
+    /// Throws an exception if the current instance has been disposed.
+    /// </summary>
+    protected void ThrowIfDisposed() {
+        if (IsDisposed) {
+            throw new global::System.ObjectDisposedException(nameof(LogWriter));
+        }
+    }
+
+    /// <summary>
+    /// Asynchronously releases the resources used by the current instance.
+    /// </summary>
+    /// <returns>
+    /// A task that represents the asynchronous dispose operation.
+    /// </returns>
+    protected virtual async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
+        if (_isDisposed) {
+            return;
+        }
+        _isDisposed = true;
+        if (_streamWriter != null) {
+            await _streamWriter.DisposeAsync().ConfigureAwait(false);
+        }
+    }
+
+}
+```
+
 ## Implement the dispose pattern for a derived class
 
 A class derived from a class that already implements `IDisposable` should not implement `IDisposable` again, because the base implementation of `IDisposable.Dispose` is inherited by derived classes.
@@ -240,13 +298,17 @@ partial class SecondLogWriter
     private bool _isDisposed;
 
     /// <summary>
+    /// Gets a value indicating whether the current instance has been disposed.
+    /// </summary>
+    protected override bool IsDisposed => _isDisposed || base.IsDisposed;
+
+    /// <summary>
     /// Throws an exception if the current instance has been disposed.
     /// </summary>
-    protected override void ThrowIfDisposed() {
-        if (_isDisposed) {
+    protected void ThrowIfDisposed() {
+        if (IsDisposed) {
             throw new global::System.ObjectDisposedException(nameof(SecondLogWriter));
         }
-        base.ThrowIfDisposed();
     }
 
     /// <summary>
@@ -325,10 +387,15 @@ partial class LogWriterWithAnExtraIntPtr
     private bool _isDisposed;
 
     /// <summary>
+    /// Gets a value indicating whether the current instance has been disposed.
+    /// </summary>
+    protected virtual bool IsDisposed => _isDisposed;
+
+    /// <summary>
     /// Throws an exception if the current instance has been disposed.
     /// </summary>
-    protected virtual void ThrowIfDisposed() {
-        if (_isDisposed) {
+    protected void ThrowIfDisposed() {
+        if (IsDisposed) {
             throw new global::System.ObjectDisposedException(nameof(LogWriterWithAnExtraIntPtr));
         }
     }
@@ -387,10 +454,15 @@ partial class LogWriter
     private int _isDisposed;
 
     /// <summary>
+    /// Gets a value indicating whether the current instance has been disposed.
+    /// </summary>
+    protected virtual bool IsDisposed => _isDisposed != 0;
+
+    /// <summary>
     /// Throws an exception if the current instance has been disposed.
     /// </summary>
-    protected virtual void ThrowIfDisposed() {
-        if (_isDisposed != 0) {
+    protected void ThrowIfDisposed() {
+        if (IsDisposed) {
             throw new global::System.ObjectDisposedException(nameof(LogWriter));
         }
     }

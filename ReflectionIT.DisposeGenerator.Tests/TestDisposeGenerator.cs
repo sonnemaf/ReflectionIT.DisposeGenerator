@@ -69,10 +69,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed;
+
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                        protected void ThrowIfDisposed() {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -110,14 +115,9 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
-                        /// Throws an exception if the current instance has been disposed.
+                        /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
-                        protected override void ThrowIfDisposed() {
-                            if (_isDisposed) {
-                                throw new global::System.ObjectDisposedException(nameof(SecondLogWriter));
-                            }
-                            base.ThrowIfDisposed();
-                        }
+                        protected override bool IsDisposed => _isDisposed || base.IsDisposed;
 
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
@@ -197,10 +197,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed;
+
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                        protected void ThrowIfDisposed() {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -283,10 +288,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed;
+
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                        protected void ThrowIfDisposed() {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -382,10 +392,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed;
+                
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                        protected void ThrowIfDisposed() {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -484,10 +499,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed;
+                
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                        protected void ThrowIfDisposed() {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -588,10 +608,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed;
+                
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                        protected void ThrowIfDisposed() {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriterWithAnExtraIntPtr));
                             }
                         }
@@ -674,10 +699,15 @@ public class TestDisposeGenerator {
                         private int _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed != 0;
+                
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed != 0) {
+                        protected void ThrowIfDisposed() {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -756,6 +786,11 @@ public class TestDisposeGenerator {
                         /// </summary>
                         private bool _isDisposed;
 
+                        /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed;
+                
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -849,10 +884,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed;
+                
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                        protected void ThrowIfDisposed() {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -891,15 +931,10 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
-                        /// Throws an exception if the current instance has been disposed.
+                        /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
-                        protected override void ThrowIfDisposed() {
-                            if (_isDisposed) {
-                                throw new global::System.ObjectDisposedException(nameof(SecondLogWriter));
-                            }
-                            base.ThrowIfDisposed();
-                        }
-
+                        protected override bool IsDisposed => _isDisposed || base.IsDisposed;
+                
                         /// <summary>
                         /// Asynchronously releases the resources used by the current instance.
                         /// </summary>
@@ -979,10 +1014,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        private bool IsDisposed => _isDisposed;
+                
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
                         private void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -1066,10 +1106,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        private bool IsDisposed => _isDisposed;
+                
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
                         private void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -1148,12 +1193,17 @@ public class TestDisposeGenerator {
                         /// Detects redundant Dispose() calls in a thread-safe manner. _isDisposed == 0 means Dispose(bool) has not been called yet, and _isDisposed == 1 means Dispose(bool) has already been called. This field must not be modified manually.
                         /// </summary>
                         private int _isDisposed;
-
+                
+                        /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        private bool IsDisposed => _isDisposed != 0;
+                
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
                         private void ThrowIfDisposed() {
-                            if (_isDisposed != 0) {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -1228,10 +1278,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed;
+                
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                        protected void ThrowIfDisposed() {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -1256,7 +1311,7 @@ public class TestDisposeGenerator {
                 """));
 
 
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1061").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 47, 22, 47, 30).WithArguments("string", "Dispose"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1061").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 52, 22, 52, 30).WithArguments("string", "Dispose"));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -1312,10 +1367,15 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
+                        /// Gets a value indicating whether the current instance has been disposed.
+                        /// </summary>
+                        protected virtual bool IsDisposed => _isDisposed;
+                
+                        /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
+                        protected void ThrowIfDisposed() {
+                            if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
                             }
                         }
@@ -1341,7 +1401,7 @@ public class TestDisposeGenerator {
 
                 """));
 
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1061").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 52, 28, 52, 40).WithArguments("string", "DisposeAsync"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1061").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 57, 28, 57, 40).WithArguments("string", "DisposeAsync"));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -1387,14 +1447,10 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
-                        /// Throws an exception if the current instance has been disposed.
+                        /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
-                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
-                            }
-                        }
-
+                        protected virtual bool IsDisposed => _isDisposed;
+                
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
@@ -1416,8 +1472,8 @@ public class TestDisposeGenerator {
                 """));
 
         context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0535").WithSpan(34, 38, 34, 49).WithArguments("X.LogWriter", "System.IDisposable.Dispose()"));
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0115").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 33, 33, 33, 40).WithArguments("X.LogWriter.Dispose(bool)"));
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0117").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 41, 18, 41, 25).WithArguments("object", "Dispose"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0115").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 29, 33, 29, 40).WithArguments("X.LogWriter.Dispose(bool)"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0117").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 37, 18, 37, 25).WithArguments("object", "Dispose"));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -1463,14 +1519,10 @@ public class TestDisposeGenerator {
                         private bool _isDisposed;
 
                         /// <summary>
-                        /// Throws an exception if the current instance has been disposed.
+                        /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
-                        protected virtual void ThrowIfDisposed() {
-                            if (_isDisposed) {
-                                throw new global::System.ObjectDisposedException(nameof(LogWriter));
-                            }
-                        }
-
+                        protected virtual bool IsDisposed => _isDisposed;
+                
                         /// <summary>
                         /// Asynchronously releases the resources used by the current instance.
                         /// </summary>
@@ -1494,8 +1546,8 @@ public class TestDisposeGenerator {
                 """));
 
         context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0535").WithSpan(34, 38, 34, 54).WithArguments("X.LogWriter", "System.IAsyncDisposable.DisposeAsync()"));
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0115").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 35, 75, 35, 91).WithArguments("X.LogWriter.DisposeAsyncCore()"));
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0117").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 43, 24, 43, 40).WithArguments("object", "DisposeAsyncCore"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0115").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 31, 75, 31, 91).WithArguments("X.LogWriter.DisposeAsyncCore()"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0117").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 39, 24, 39, 40).WithArguments("object", "DisposeAsyncCore"));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
