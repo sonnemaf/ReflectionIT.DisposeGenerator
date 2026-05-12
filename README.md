@@ -49,6 +49,7 @@ The generator creates the dispose members for the annotated type, including `_is
 - The annotated type must be `partial`.
 - `[Disposable]` can be applied to classes and structs.
 - `[Dispose]` and `[AsyncDispose]` can be applied to fields and properties.
+- `Order` can be used on `[Dispose]` and `[AsyncDispose]` to control disposal order. Members without an explicit `Order` are disposed last.
 - The generator emits `RITDG001` when a type annotated with `[Disposable]` is not declared `partial`.
 - Members annotated with `[Dispose]` or `[AsyncDispose]` must support the generated dispose call pattern. Otherwise the generated code can produce compiler errors.
 
@@ -74,6 +75,7 @@ The generator creates the dispose members for the annotated type, including `_is
 | Property | Default | Description |
 | --- | --- | --- |
 | `SetToNull` | `false` | Sets the annotated field or property to `null` after disposal. |
+| `Order` | `0` | Controls the order in which annotated members are disposed. Members with an explicit `Order` are disposed from lowest to highest order. Members without an explicit `Order` are disposed last. |
 
 ### `AsyncDisposeAttribute`
 
@@ -81,6 +83,7 @@ The generator creates the dispose members for the annotated type, including `_is
 | --- | --- | --- |
 | `SetToNull` | `false` | Sets the annotated field or property to `null` after asynchronous disposal. |
 | `ConfigureAwait` | `true` | Controls the `ConfigureAwait(...)` value used for generated async disposal calls. |
+| `Order` | `0` | Controls the order in which annotated members are asynchronously disposed. Members with an explicit `Order` are disposed from lowest to highest order. Members without an explicit `Order` are disposed last. |
 
 ## What gets generated
 
@@ -190,6 +193,57 @@ partial class LogWriter
     }
 
 }
+```
+
+## Dispose order
+
+Use `Order` when disposable members must be disposed in a specific order.
+
+Members with an explicit `Order` are disposed from the lowest order value to the highest order value. Members without an explicit `Order` are disposed last.
+
+```cs
+using System;
+using System.IO;
+using ReflectionIT.DisposeGenerator.Attributes;
+
+[Disposable]
+public partial class LogWriterWithField : IDisposable, IAsyncDisposable {
+
+    [Dispose(SetToNull = true, Order = 0)]
+    [AsyncDispose]
+    private StreamWriter _streamWriter;
+
+    [AsyncDispose(Order = 2)]
+    private StreamWriter? _streamWriter2;
+
+    [Dispose(Order = 1)]
+    private StreamWriter? _streamWriter3;
+
+    public LogWriterWithField(string path) => _streamWriter = new StreamWriter(path);
+
+    public void WriteLine(string text) => _streamWriter.WriteLine($"{DateTime.Now}\t{text}");
+}
+```
+
+In this example:
+
+- `_streamWriter` is disposed first during synchronous disposal because `[Dispose]` has `Order = 0`.
+- `_streamWriter3` is disposed after `_streamWriter` during synchronous disposal because `[Dispose]` has `Order = 1`.
+- `_streamWriter2` is disposed asynchronously with `Order = 2`.
+- `_streamWriter` has `[AsyncDispose]` without an explicit `Order`, so it is asynchronously disposed after explicitly ordered async members.
+
+`Order` is evaluated separately for `[Dispose]` and `[AsyncDispose]`. A member can have both attributes, and each attribute can define its own disposal order.
+
+```cs
+[Dispose(Order = 1)]
+[AsyncDispose(Order = 0)]
+private SomeResource _resource;
+```
+
+`Order` is an `int` attribute property. To detect whether the user explicitly specified an order, the generator checks whether `Order` is present in the attribute's named arguments.
+
+```cs
+public int Order { get; set; }
 ```
 
 ## Async dispose
@@ -492,6 +546,12 @@ The type marked with `[Disposable]` is not declared `partial`. Add the `partial`
 ### Why do I get compiler errors for `Dispose()` or `DisposeAsync()` on an annotated member?
 
 The generator emits calls to `Dispose()` for `[Dispose]` members and `DisposeAsync()` for `[AsyncDispose]` members. Make sure the annotated member supports the corresponding API.
+
+### Why are members without `Order` disposed last?
+
+`Order` is an `int` attribute property, because nullable attribute parameters such as `int?` are not supported by C# attributes.
+
+The generator detects whether `Order` was explicitly specified in the attribute usage. Members with an explicit `Order` are sorted first. Members without an explicit `Order` are disposed last.
 
 ### Why was no code generated?
 

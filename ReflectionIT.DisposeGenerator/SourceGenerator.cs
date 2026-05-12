@@ -207,7 +207,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                      $"""    {setIsDisposed}""",
                       """    if (disposing) {""");
 
-                foreach (var item in disposeInfos.Values) {
+                foreach (var item in disposeInfos.Values.OrderBy(v => v.Order)) {
                     builder.AddStatements($"        {item.MemberName}?.Dispose();");
                 }
 

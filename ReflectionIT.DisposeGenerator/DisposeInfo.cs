@@ -12,6 +12,8 @@ internal class DisposeInfo : IEquatable<DisposeInfo?> {
 
     public bool SetToNull { get; }
 
+    public int Order { get; }
+
     public DisposeInfo(ISymbol symbol, string typeName) {
 
         MemberName = symbol.Name;
@@ -22,6 +24,9 @@ internal class DisposeInfo : IEquatable<DisposeInfo?> {
              .First(a => a.AttributeClass?.ToDisplayString() == typeName);
 
         SetToNull = attribute.NamedArguments.FirstOrDefault(n => n.Key == nameof(DisposeAttribute.SetToNull)).Value.ToCSharpString() == "true";
+        Order = (int)(attribute.NamedArguments
+            .FirstOrDefault(n => n.Key == nameof(DisposeAttribute.Order))
+            .Value.Value ?? int.MaxValue);
     }
 
     public override bool Equals(object? obj) => Equals(obj as DisposeInfo);

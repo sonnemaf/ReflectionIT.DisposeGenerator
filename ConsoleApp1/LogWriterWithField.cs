@@ -3,14 +3,14 @@
 [Disposable]
 public partial class LogWriterWithField : IDisposable, IAsyncDisposable {
 
-    [Dispose(SetToNull = true)]
+    [Dispose(SetToNull = true, Order = 0)]
     [AsyncDispose]
     private StreamWriter _streamWriter;
 
-    [AsyncDispose]
+    [AsyncDispose(Order = 2)]
     private StreamWriter? _streamWriter2;
 
-    [Dispose]
+    [Dispose(Order = 1)]
     private StreamWriter? _streamWriter3;
 
     public LogWriterWithField(string path) => _streamWriter = new StreamWriter(path);
