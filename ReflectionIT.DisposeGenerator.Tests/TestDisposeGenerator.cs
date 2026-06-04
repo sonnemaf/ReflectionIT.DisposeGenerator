@@ -142,7 +142,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -233,7 +233,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -325,7 +325,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -444,7 +444,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -535,7 +535,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -645,7 +645,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -734,7 +734,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -814,7 +814,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -961,7 +961,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -1050,7 +1050,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -1144,7 +1144,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -1230,7 +1230,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -1316,7 +1316,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -1406,7 +1406,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -1478,7 +1478,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -1552,7 +1552,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
@@ -1586,7 +1586,7 @@ public class TestDisposeGenerator {
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
             var parse = (CSharpParseOptions)project.ParseOptions!;
-            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp14));
+            return solution.WithProjectParseOptions(projectId, parse.WithLanguageVersion(LanguageVersion.CSharp13));
         });
 
         await context.RunAsync();
