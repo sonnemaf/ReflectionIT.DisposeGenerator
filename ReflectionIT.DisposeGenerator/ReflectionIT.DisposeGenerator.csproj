@@ -14,8 +14,8 @@
 		<RepositoryUrl>https://github.com/sonnemaf/ReflectionIT.DisposeGenerator</RepositoryUrl>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageReleaseNotes>
-			- Added a protected IsDisposed property used in the ThrowIfDisposed() method
-		</PackageReleaseNotes>
+            - Microsoft.CodeAnalysis.CSharp downgraded to 4.14.0 to support Visual Studio 2022
+        </PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
