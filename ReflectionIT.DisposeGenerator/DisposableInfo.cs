@@ -1,7 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ReflectionIT.DisposeGenerator.Attributes;
 
 namespace ReflectionIT.DisposeGenerator;
 
@@ -13,7 +12,7 @@ internal class DisposableInfo {
     public bool IsThreadSafe { get; }
     public bool OverrideDispose { get; }
     public bool OverrideDisposeAsyncCore { get; set; }
-    public bool GenerateThrowIfDisposed { get; }
+    public bool GenerateThrowIfDisposed { get; } = true;
     public bool ExplicitInterfaceImplementation { get; }
     public bool HasUnmanagedResources { get; }
 
@@ -30,14 +29,14 @@ internal class DisposableInfo {
         IsValueType = typeSymbol.IsValueType;
         IsPartial = typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword);
 
-        var attribute = typeSymbol.GetAttributes().First(a => a.AttributeClass?.ToDisplayString() == typeof(DisposableAttribute).FullName);
+        var attribute = typeSymbol.GetAttributes().First(a => a.AttributeClass?.ToDisplayString() == AttributeMetadata.DisposableAttributeName);
 
-        IsThreadSafe = ReadBoolean(attribute, nameof(DisposableAttribute.IsThreadSafe));
-        OverrideDispose = ReadBoolean(attribute, nameof(DisposableAttribute.OverrideDispose));
-        OverrideDisposeAsyncCore = ReadBoolean(attribute, nameof(DisposableAttribute.OverrideDisposeAsyncCore));
-        GenerateThrowIfDisposed = ReadBoolean(attribute, nameof(DisposableAttribute.GenerateThrowIfDisposed), defaultValue: true);
-        ExplicitInterfaceImplementation = ReadBoolean(attribute, nameof(DisposableAttribute.ExplicitInterfaceImplementation));
-        HasUnmanagedResources = ReadBoolean(attribute, nameof(DisposableAttribute.HasUnmanagedResources));
+        IsThreadSafe = ReadBoolean(attribute, AttributeMetadata.IsThreadSafePropertyName);
+        OverrideDispose = ReadBoolean(attribute, AttributeMetadata.OverrideDisposePropertyName);
+        OverrideDisposeAsyncCore = ReadBoolean(attribute, AttributeMetadata.OverrideDisposeAsyncCorePropertyName);
+        GenerateThrowIfDisposed = ReadBoolean(attribute, AttributeMetadata.GenerateThrowIfDisposedPropertyName, defaultValue: true);
+        ExplicitInterfaceImplementation = ReadBoolean(attribute, AttributeMetadata.ExplicitInterfaceImplementationPropertyName);
+        HasUnmanagedResources = ReadBoolean(attribute, AttributeMetadata.HasUnmanagedResourcesPropertyName);
 
         static bool ReadBoolean(AttributeData attribute, string propertyName, bool defaultValue = false) {
             var namedArgument = attribute.NamedArguments.FirstOrDefault(n => n.Key == propertyName);

@@ -11,4 +11,3 @@ public class AsyncDisposeAttribute : DisposeAttribute {
     /// </summary>
     public bool ConfigureAwait { get; set; } = true;
 }
-

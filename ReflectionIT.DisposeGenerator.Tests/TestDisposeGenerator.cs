@@ -58,6 +58,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -66,16 +67,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -86,13 +90,14 @@ public class TestDisposeGenerator {
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                StreamWriter?.Dispose();
+                                this.StreamWriter?.Dispose();
                             }
                         }
 
@@ -112,24 +117,27 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected override bool IsDisposed => _isDisposed || base.IsDisposed;
 
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected override void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                SecondStreamWriter?.Dispose();
+                                this.SecondStreamWriter?.Dispose();
                             }
                             base.Dispose(disposing);
                         }
@@ -186,6 +194,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -194,16 +203,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -214,13 +226,14 @@ public class TestDisposeGenerator {
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                StreamWriter?.Dispose();
+                                this.StreamWriter?.Dispose();
                             }
                         }
 
@@ -277,6 +290,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -285,16 +299,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -305,15 +322,16 @@ public class TestDisposeGenerator {
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                _streamWriter?.Dispose();
+                                this._streamWriter?.Dispose();
                             }
-                            _streamWriter = null;
+                            this._streamWriter = null;
                         }
 
                     }
@@ -370,6 +388,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -381,6 +400,7 @@ public class TestDisposeGenerator {
                         /// <returns>
                         /// A task that represents the asynchronous dispose operation.
                         /// </returns>
+                {{GetGeneratedCodeAttribute(8)}}
                         public async global::System.Threading.Tasks.ValueTask DisposeAsync() {
                             await DisposeAsyncCore().ConfigureAwait(false);
                             global::System.GC.SuppressFinalize(this);
@@ -389,16 +409,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
                 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -409,13 +432,14 @@ public class TestDisposeGenerator {
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                _streamWriter?.Dispose();
+                                this._streamWriter?.Dispose();
                             }
                         }
 
@@ -425,13 +449,14 @@ public class TestDisposeGenerator {
                         /// <returns>
                         /// A task that represents the asynchronous dispose operation.
                         /// </returns>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
-                            if (_streamWriter != null) {
-                                await _streamWriter.DisposeAsync().ConfigureAwait(false);
+                            if (this._streamWriter != null) {
+                                await this._streamWriter.DisposeAsync().ConfigureAwait(false);
                             }
                         }
 
@@ -488,6 +513,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         void global::System.IDisposable.Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -496,16 +522,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
                 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -516,13 +545,14 @@ public class TestDisposeGenerator {
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                StreamWriter?.Dispose();
+                                this.StreamWriter?.Dispose();
                             }
                         }
 
@@ -585,6 +615,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -593,6 +624,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases unmanaged resources held by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         ~LogWriterWithAnExtraIntPtr() {
                             Dispose(disposing: false);
                         }
@@ -600,21 +632,25 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases unmanaged resources held by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual partial void ReleaseUnmanagedResources();
 
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
                 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriterWithAnExtraIntPtr));
@@ -625,13 +661,14 @@ public class TestDisposeGenerator {
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                StreamWriter?.Dispose();
+                                this.StreamWriter?.Dispose();
                             }
                             ReleaseUnmanagedResources();
                         }
@@ -688,6 +725,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -696,16 +734,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Detects redundant Dispose() calls in a thread-safe manner. _isDisposed == 0 means Dispose(bool) has not been called yet, and _isDisposed == 1 means Dispose(bool) has already been called. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private int _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed != 0;
                 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -716,12 +757,13 @@ public class TestDisposeGenerator {
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual void Dispose(bool disposing) {
                             if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0) {
                                 return;
                             }
                             if (disposing) {
-                                StreamWriter?.Dispose();
+                                this.StreamWriter?.Dispose();
                             }
                         }
 
@@ -776,6 +818,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -784,24 +827,27 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
                 
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                StreamWriter?.Dispose();
+                                this.StreamWriter?.Dispose();
                             }
                         }
 
@@ -873,6 +919,7 @@ public class TestDisposeGenerator {
                         /// <returns>
                         /// A task that represents the asynchronous dispose operation.
                         /// </returns>
+                {{GetGeneratedCodeAttribute(8)}}
                         public async global::System.Threading.Tasks.ValueTask DisposeAsync() {
                             await DisposeAsyncCore().ConfigureAwait(false);
                             global::System.GC.SuppressFinalize(this);
@@ -881,16 +928,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
                 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -903,13 +953,14 @@ public class TestDisposeGenerator {
                         /// <returns>
                         /// A task that represents the asynchronous dispose operation.
                         /// </returns>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
-                            if (StreamWriter != null) {
-                                await StreamWriter.DisposeAsync().ConfigureAwait(false);
+                            if (this.StreamWriter != null) {
+                                await this.StreamWriter.DisposeAsync().ConfigureAwait(false);
                             }
                         }
 
@@ -928,11 +979,13 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected override bool IsDisposed => _isDisposed || base.IsDisposed;
                 
                         /// <summary>
@@ -941,13 +994,14 @@ public class TestDisposeGenerator {
                         /// <returns>
                         /// A task that represents the asynchronous dispose operation.
                         /// </returns>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected override async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
-                            if (SecondStreamWriter != null) {
-                                await SecondStreamWriter.DisposeAsync().ConfigureAwait(false);
+                            if (this.SecondStreamWriter != null) {
+                                await this.SecondStreamWriter.DisposeAsync().ConfigureAwait(false);
                             }
                             await base.DisposeAsyncCore().ConfigureAwait(false);
                         }
@@ -1003,6 +1057,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -1011,16 +1066,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         private bool IsDisposed => _isDisposed;
                 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         private void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -1031,13 +1089,14 @@ public class TestDisposeGenerator {
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         private void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                _streamWriter?.Dispose();
+                                this._streamWriter?.Dispose();
                             }
                         }
 
@@ -1095,6 +1154,7 @@ public class TestDisposeGenerator {
                         /// <returns>
                         /// A task that represents the asynchronous dispose operation.
                         /// </returns>
+                {{GetGeneratedCodeAttribute(8)}}
                         public async global::System.Threading.Tasks.ValueTask DisposeAsync() {
                             await DisposeAsyncCore().ConfigureAwait(false);
                             global::System.GC.SuppressFinalize(this);
@@ -1103,16 +1163,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         private bool IsDisposed => _isDisposed;
                 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         private void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -1125,13 +1188,14 @@ public class TestDisposeGenerator {
                         /// <returns>
                         /// A task that represents the asynchronous dispose operation.
                         /// </returns>
+                {{GetGeneratedCodeAttribute(8)}}
                         private async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
-                            if (_streamWriter != null) {
-                                await _streamWriter.DisposeAsync().ConfigureAwait(false);
+                            if (this._streamWriter != null) {
+                                await this._streamWriter.DisposeAsync().ConfigureAwait(false);
                             }
                         }
 
@@ -1184,6 +1248,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -1192,16 +1257,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Detects redundant Dispose() calls in a thread-safe manner. _isDisposed == 0 means Dispose(bool) has not been called yet, and _isDisposed == 1 means Dispose(bool) has already been called. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private int _isDisposed;
                 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         private bool IsDisposed => _isDisposed != 0;
                 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         private void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -1212,12 +1280,13 @@ public class TestDisposeGenerator {
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         private void Dispose(bool disposing) {
                             if (global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0) {
                                 return;
                             }
                             if (disposing) {
-                                StreamWriter?.Dispose();
+                                this.StreamWriter?.Dispose();
                             }
                         }
 
@@ -1267,6 +1336,7 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Releases all resources used by the current instance.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         public void Dispose() {
                             Dispose(disposing: true);
                             global::System.GC.SuppressFinalize(this);
@@ -1275,16 +1345,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
                 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -1295,13 +1368,14 @@ public class TestDisposeGenerator {
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                Text?.Dispose();
+                                this.Text?.Dispose();
                             }
                         }
 
@@ -1311,7 +1385,7 @@ public class TestDisposeGenerator {
                 """));
 
 
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1061").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 52, 22, 52, 30).WithArguments("string", "Dispose"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1061").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 61, 27, 61, 35).WithArguments("string", "Dispose"));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -1356,6 +1430,7 @@ public class TestDisposeGenerator {
                         /// <returns>
                         /// A task that represents the asynchronous dispose operation.
                         /// </returns>
+                {{GetGeneratedCodeAttribute(8)}}
                         public async global::System.Threading.Tasks.ValueTask DisposeAsync() {
                             await DisposeAsyncCore().ConfigureAwait(false);
                             global::System.GC.SuppressFinalize(this);
@@ -1364,16 +1439,19 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
                 
                         /// <summary>
                         /// Throws an exception if the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected void ThrowIfDisposed() {
                             if (IsDisposed) {
                                 throw new global::System.ObjectDisposedException(nameof(LogWriter));
@@ -1386,13 +1464,14 @@ public class TestDisposeGenerator {
                         /// <returns>
                         /// A task that represents the asynchronous dispose operation.
                         /// </returns>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
-                            if (Text != null) {
-                                await Text.DisposeAsync().ConfigureAwait(false);
+                            if (this.Text != null) {
+                                await this.Text.DisposeAsync().ConfigureAwait(false);
                             }
                         }
 
@@ -1401,7 +1480,7 @@ public class TestDisposeGenerator {
 
                 """));
 
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1061").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 57, 28, 57, 40).WithArguments("string", "DisposeAsync"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS1061").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 66, 33, 66, 45).WithArguments("string", "DisposeAsync"));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -1444,24 +1523,27 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
                 
                         /// <summary>
                         /// Releases the unmanaged resources used by the current instance and optionally releases the managed resources.
                         /// </summary>
                         /// <param name="disposing">"true" to release managed resources; otherwise, "false".</param>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected override void Dispose(bool disposing) {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
                             if (disposing) {
-                                StreamWriter?.Dispose();
+                                this.StreamWriter?.Dispose();
                             }
                             base.Dispose(disposing);
                         }
@@ -1472,8 +1554,8 @@ public class TestDisposeGenerator {
                 """));
 
         context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0535").WithSpan(34, 38, 34, 49).WithArguments("X.LogWriter", "System.IDisposable.Dispose()"));
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0115").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 29, 33, 29, 40).WithArguments("X.LogWriter.Dispose(bool)"));
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0117").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 37, 18, 37, 25).WithArguments("object", "Dispose"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0115").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 34, 33, 34, 40).WithArguments("X.LogWriter.Dispose(bool)"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0117").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 42, 18, 42, 25).WithArguments("object", "Dispose"));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -1516,11 +1598,13 @@ public class TestDisposeGenerator {
                         /// <summary>
                         /// Tracks whether the current instance has been disposed. This field must not be modified manually.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8, false)}}
                         private bool _isDisposed;
 
                         /// <summary>
                         /// Gets a value indicating whether the current instance has been disposed.
                         /// </summary>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected virtual bool IsDisposed => _isDisposed;
                 
                         /// <summary>
@@ -1529,13 +1613,14 @@ public class TestDisposeGenerator {
                         /// <returns>
                         /// A task that represents the asynchronous dispose operation.
                         /// </returns>
+                {{GetGeneratedCodeAttribute(8)}}
                         protected override async global::System.Threading.Tasks.ValueTask DisposeAsyncCore() {
                             if (_isDisposed) {
                                 return;
                             }
                             _isDisposed = true;
-                            if (StreamWriter != null) {
-                                await StreamWriter.DisposeAsync().ConfigureAwait(false);
+                            if (this.StreamWriter != null) {
+                                await this.StreamWriter.DisposeAsync().ConfigureAwait(false);
                             }
                             await base.DisposeAsyncCore().ConfigureAwait(false);
                         }
@@ -1546,8 +1631,8 @@ public class TestDisposeGenerator {
                 """));
 
         context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0535").WithSpan(34, 38, 34, 54).WithArguments("X.LogWriter", "System.IAsyncDisposable.DisposeAsync()"));
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0115").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 31, 75, 31, 91).WithArguments("X.LogWriter.DisposeAsyncCore()"));
-        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0117").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 39, 24, 39, 40).WithArguments("object", "DisposeAsyncCore"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0115").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 36, 75, 36, 91).WithArguments("X.LogWriter.DisposeAsyncCore()"));
+        context.ExpectedDiagnostics.Add(DiagnosticResult.CompilerError("CS0117").WithSpan(@"ReflectionIT.DisposeGenerator\ReflectionIT.DisposeGenerator.SourceGenerator\X.LogWriter.g.cs", 44, 24, 44, 40).WithArguments("object", "DisposeAsyncCore"));
 
         context.SolutionTransforms.Add((solution, projectId) => {
             var project = solution.GetProject(projectId)!;
@@ -1639,4 +1724,19 @@ public class TestDisposeGenerator {
             
             """;
 
+
+    public string GetGeneratedCodeAttribute(int indentCount, bool excludeFromCodeCoverage = true) {
+        string indent = new string(c: ' ', count: indentCount);
+        var name = typeof(SourceGenerator).Assembly.GetName();
+
+        string text = $""""
+            {indent}[global::System.CodeDom.Compiler.GeneratedCode("{name.Name}", "{name.Version}")]
+            """";
+
+        if (excludeFromCodeCoverage) {
+            text += $"\r\n{indent}[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]";
+        }
+
+        return text;
+    }
 }

@@ -1,12 +1,16 @@
-﻿//namespace ConsoleApp1;
+﻿namespace ConsoleApp1;
 
-//[Disposable(IsThreadSafe = true)]
-//public partial class LogWriter : IDisposable {
+[Disposable]
+public partial class LogWriter : IDisposable {
 
-//    [Dispose]
-//    private StreamWriter StreamWriter { get; }
+    [Dispose]
+    private readonly StreamWriter _streamWriter;
 
-//    public LogWriter(string path) => StreamWriter = new StreamWriter(path);
+    public LogWriter(string path) => _streamWriter = new StreamWriter(path);
 
-//    public void WriteLine(string text) => StreamWriter.WriteLine($"{DateTime.Now}\t{text}");
-//}
+    public void WriteLine(string text) {
+        ThrowIfDisposed();
+        Console.WriteLine(17);
+        _streamWriter.WriteLine($"{DateTime.Now}\t{text}");
+    }
+}

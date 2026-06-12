@@ -184,7 +184,7 @@ partial class LogWriter
         }
         _isDisposed = true;
         if (disposing) {
-            StreamWriter?.Dispose();
+            this.StreamWriter?.Dispose();
         }
         StreamWriter = null;
     }
@@ -257,8 +257,8 @@ partial class LogWriter
             return;
         }
         _isDisposed = true;
-        if (_streamWriter != null) {
-            await _streamWriter.DisposeAsync().ConfigureAwait(false);
+        if (this._streamWriter != null) {
+            await this._streamWriter.DisposeAsync().ConfigureAwait(false);
         }
     }
 
@@ -321,7 +321,7 @@ partial class SecondLogWriter
         }
         _isDisposed = true;
         if (disposing) {
-            SecondStreamWriter?.Dispose();
+            this.SecondStreamWriter?.Dispose();
         }
         base.Dispose(disposing);
     }
@@ -410,7 +410,7 @@ partial class LogWriterWithAnExtraIntPtr
         }
         _isDisposed = true;
         if (disposing) {
-            StreamWriter?.Dispose();
+            this.StreamWriter?.Dispose();
         }
         ReleaseUnmanagedResources();
     }
@@ -476,7 +476,7 @@ partial class LogWriter
             return;
         }
         if (disposing) {
-            _streamWriter?.Dispose();
+            this._streamWriter?.Dispose();
         }
     }
 
