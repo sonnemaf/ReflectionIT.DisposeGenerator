@@ -7,6 +7,7 @@ namespace ReflectionIT.DisposeGenerator;
 internal class DisposableInfo {
 
     public ITypeSymbol TypeSymbol { get; }
+    public string TypeKey { get; }
     public TypeDeclarationSyntax TypeDeclarationSyntax { get; }
 
     public bool IsThreadSafe { get; }
@@ -23,6 +24,7 @@ internal class DisposableInfo {
 
     public DisposableInfo(ITypeSymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax) {
         TypeSymbol = typeSymbol;
+        TypeKey = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         TypeDeclarationSyntax = typeDeclarationSyntax;
 
         IsSealed = typeSymbol.IsSealed;

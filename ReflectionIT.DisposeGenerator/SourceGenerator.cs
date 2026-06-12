@@ -32,18 +32,17 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
         var disposeInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
                 AttributeMetadata.DisposeAttributeName,
-                predicate: static (node, cancel) => IsValidDisposeNode(node),
+                predicate: static (node, cancel) => node is VariableDeclaratorSyntax or PropertyDeclarationSyntax,
                 transform: static (context, cancel) =>
                     new DisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!, AttributeMetadata.DisposeAttributeName)
             );
 
         var asyncDisposeInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
             AttributeMetadata.AsyncDisposeAttributeName,
-            predicate: static (node, cancel) => IsValidDisposeNode(node),
+            predicate: static (node, cancel) => node is VariableDeclaratorSyntax or PropertyDeclarationSyntax,
             transform: static (context, cancel) =>
                 new AsyncDisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!)
         );
-
 
         var all = disposableInfos.Collect().Combine(disposeInfos.Collect().Combine(asyncDisposeInfos.Collect()));
 
@@ -69,8 +68,10 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     continue;
                 }
 
-                var disposeInfos = tuple.Right.Left.Where(d => SymbolEqualityComparer.Default.Equals(d.ContainingType, dtInfo.TypeSymbol)).ToDictionary(p => p.MemberName)!;
-                var asyncDisposeInfos = tuple.Right.Right.Where(d => SymbolEqualityComparer.Default.Equals(d.ContainingType, dtInfo.TypeSymbol)).ToDictionary(p => p.MemberName)!;
+                // During live analysis, cached values from different incremental compilations can contain equivalent source symbols
+                // that are not equal by symbol identity. Match by a stable fully-qualified type key instead.
+                Dictionary<string, DisposeInfo> disposeInfos = tuple.Right.Left.Where(d => d.ContainingTypeKey == dtInfo.TypeKey).ToDictionary(p => p.MemberName)!;
+                Dictionary<string, AsyncDisposeInfo> asyncDisposeInfos = tuple.Right.Right.Where(d => d.ContainingTypeKey == dtInfo.TypeKey).ToDictionary(p => p.MemberName)!;
 
                 if (disposeInfos.Count + asyncDisposeInfos.Count == 0 && !dtInfo.HasUnmanagedResources) {
                     continue;
@@ -107,7 +108,6 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                         .AddEmptyLine();
                 }
 
-                //const string valueTaskText = "ValueTask";
                 const string valueTaskText = "global::System.Threading.Tasks.ValueTask";
 
                 if (!dtInfo.OverrideDisposeAsyncCore && generateAsyncDispose) {
@@ -317,10 +317,6 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
         spc.ReportDiagnostic(
             Diagnostic.Create(descriptor, Location.None, ex.ToString()));
-    }
-
-    internal static bool IsValidDisposeNode(SyntaxNode node) {
-        return node is VariableDeclaratorSyntax or PropertyDeclarationSyntax;
     }
 
     private static bool HasDisposableBase(ITypeSymbol typeSymbol) {

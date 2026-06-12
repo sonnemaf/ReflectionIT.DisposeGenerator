@@ -8,6 +8,7 @@ internal class DisposeInfo : IEquatable<DisposeInfo?> {
 
     public string MemberName { get; }
     public ITypeSymbol ContainingType { get; }
+    public string ContainingTypeKey { get; }
 
     public bool SetToNull { get; }
 
@@ -16,6 +17,7 @@ internal class DisposeInfo : IEquatable<DisposeInfo?> {
         MemberName = symbol.Name;
 
         ContainingType = symbol.ContainingType;
+        ContainingTypeKey = ContainingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
         var attribute = symbol.GetAttributes()
              .First(a => a.AttributeClass?.ToDisplayString() == typeName);
