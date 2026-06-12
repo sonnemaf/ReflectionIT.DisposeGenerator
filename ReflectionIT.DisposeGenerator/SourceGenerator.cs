@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Text;
 
 namespace ReflectionIT.DisposeGenerator;
@@ -68,10 +67,15 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                     continue;
                 }
 
-                // During live analysis, cached values from different incremental compilations can contain equivalent source symbols
-                // that are not equal by symbol identity. Match by a stable fully-qualified type key instead.
-                Dictionary<string, DisposeInfo> disposeInfos = tuple.Right.Left.Where(d => d.ContainingTypeKey == dtInfo.TypeKey).ToDictionary(p => p.MemberName)!;
-                Dictionary<string, AsyncDisposeInfo> asyncDisposeInfos = tuple.Right.Right.Where(d => d.ContainingTypeKey == dtInfo.TypeKey).ToDictionary(p => p.MemberName)!;
+                // During live analysis, cached values from different incremental compilations
+                // can contain equivalent source symbols that are not equal by symbol identity.
+                // Match by a stable fully-qualified type key instead.
+                Dictionary<string, DisposeInfo> disposeInfos = tuple.Right.Left
+                    .Where(d => d.ContainingTypeKey == dtInfo.TypeKey)
+                    .ToDictionary(p => p.MemberName);
+                Dictionary<string, AsyncDisposeInfo> asyncDisposeInfos = tuple.Right.Right
+                    .Where(d => d.ContainingTypeKey == dtInfo.TypeKey)
+                    .ToDictionary(p => p.MemberName);
 
                 if (disposeInfos.Count + asyncDisposeInfos.Count == 0 && !dtInfo.HasUnmanagedResources) {
                     continue;
@@ -326,10 +330,8 @@ public sealed class SourceGenerator : IIncrementalGenerator {
             if (disposableAttribute is not null) {
                 return true;
             }
-
             baseType = baseType.BaseType;
         }
-
         return false;
     }
 
