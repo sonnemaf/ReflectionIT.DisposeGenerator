@@ -13,7 +13,7 @@
         <Copyright>©2025-2026 Reflection IT</Copyright>
         <PackageIcon>Logo.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-        <IsPackable>false</IsPackable>
+        <IsPackable>true</IsPackable>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/sonnemaf/ReflectionIT.DisposeGenerator</RepositoryUrl>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
