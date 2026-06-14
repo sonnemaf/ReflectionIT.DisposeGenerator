@@ -8,14 +8,17 @@
 		<LangVersion>latest</LangVersion>
 		<IsRoslynComponent>true</IsRoslynComponent>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
-		<Company>Reflection IT</Company>
-		<PackageIcon>Logo.png</PackageIcon>
+        <IncludeSymbols>false</IncludeSymbols>
+        <Company>Reflection IT</Company>
+        <Copyright>©2025-2026 Reflection IT</Copyright>
+        <PackageIcon>Logo.png</PackageIcon>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
         <Description>A source generator package that implements the dispose and async dispose patterns</Description>
 		<RepositoryUrl>https://github.com/sonnemaf/ReflectionIT.DisposeGenerator</RepositoryUrl>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-		<PackageReleaseNotes>
-            - Microsoft.CodeAnalysis.CSharp downgraded to 4.14.0 to support Visual Studio 2022
+        <PackageReleaseNotes>
+            - Bug fix in which te source was generated on build time but not visible in the VS editor
+            - [GeneratedCode] and [ExcludeFromCodeCoverage] attributes added in generated code
         </PackageReleaseNotes>
 	</PropertyGroup>
 
@@ -31,19 +34,20 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all" />
-	</ItemGroup>
-
+    <ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    </ItemGroup>
+    
     <ItemGroup>
         <None Include="Logo.png" Pack="True" PackagePath="\" />
         <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="$(OutputPath)\ReflectionIT.DisposeGenerator.Attributes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
         <None Include="$(OutputPath)\ReflectionIT.DisposeGenerator.Attributes.dll" Pack="true" PackagePath="lib\netstandard2.0" Visible="false" />
+        <None Include="$(OutputPath)\ReflectionIT.DisposeGenerator.Attributes.xml" Pack="true" PackagePath="lib\netstandard2.0" Visible="false" />
     </ItemGroup>
     
-	<ItemGroup>
+    <ItemGroup>
 	  <ProjectReference Include="..\ReflectionIT.DisposeGenerator.Attributes\ReflectionIT.DisposeGenerator.Attributes.csproj" PrivateAssets="all" />
 	</ItemGroup>
 

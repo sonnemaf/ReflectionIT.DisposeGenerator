@@ -154,8 +154,8 @@ internal sealed class CsFileBuilder {
     }
 
     public void Dispose() {
-        _indentedTextWriter?.Dispose();
-        _stringWriter?.Dispose();
+        this._indentedTextWriter?.Dispose();
+        this._stringWriter?.Dispose();
     }
 
     /// <summary>
@@ -175,20 +175,10 @@ internal sealed class CsFileBuilder {
         // via shared projects. As such, the assembly will be the same as the generator type itself.
         Version assemblyVersion = this.GetType().Assembly.GetName().Version;
 
-        if (useFullyQualifiedTypeNames) {
-            _indentedTextWriter.WriteLine($$"""[global::System.CodeDom.Compiler.GeneratedCode("{{generatorName}}", "{{assemblyVersion}}")]""");
-
-            if (includeNonUserCodeAttributes) {
-                _indentedTextWriter.WriteLine($$"""[global::System.Diagnostics.DebuggerNonUserCode]""");
-                _indentedTextWriter.WriteLine($$"""[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]""");
-            }
-        } else {
-            _indentedTextWriter.WriteLine($$"""[GeneratedCode("{{generatorName}}", "{{assemblyVersion}}")]""");
-
-            if (includeNonUserCodeAttributes) {
-                _indentedTextWriter.WriteLine($$"""[DebuggerNonUserCode]""");
-                _indentedTextWriter.WriteLine($$"""[ExcludeFromCodeCoverage]""");
-            }
+        _indentedTextWriter.WriteLine($$"""[global::System.CodeDom.Compiler.GeneratedCode("{{generatorName}}", "{{assemblyVersion}}")]""");
+        if (includeNonUserCodeAttributes) {
+            _indentedTextWriter.WriteLine($$"""[global::System.Diagnostics.DebuggerNonUserCode]""");
+            _indentedTextWriter.WriteLine($$"""[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]""");
         }
         return this;
     }
@@ -241,6 +231,20 @@ internal sealed class CsFileBuilder {
             parent = parent.ContainingSymbol as ITypeSymbol;
         }
         this.EndBlock();
+
+        return this;
+    }
+
+    public CsFileBuilder AddGeneratedCodeAttribute(bool excludeFromCodeCoverage = true) {
+        var name = this.GetType().Assembly.GetName();
+
+        this.AddStatements(
+            $"""[global::System.CodeDom.Compiler.GeneratedCode("{name.Name}", "{name.Version}")]"""
+        );
+
+        this.AddStatementsIf(excludeFromCodeCoverage,
+            "[global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]"
+        );
 
         return this;
     }

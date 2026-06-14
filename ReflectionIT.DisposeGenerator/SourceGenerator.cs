@@ -2,19 +2,18 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using ReflectionIT.DisposeGenerator.Attributes;
 using System.Collections.Immutable;
 using System.Text;
 
 namespace ReflectionIT.DisposeGenerator;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 public sealed class SourceGenerator : IIncrementalGenerator {
 
     internal static readonly DiagnosticDescriptor TypeMustBePartial = new(
         id: "RITDG001",
         title: "Disposable type must be partial",
-        messageFormat: "Type '{0}' is annotated with [Disposable] and must be declared partial for ReflectionIT.DisposeGenerator to generate code.",
+        messageFormat: "Type '{0}' is annotated with [Disposable] and must be declared partial for ReflectionIT.DisposeGenerator to generate code",
         category: "ReflectionIT.DisposeGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
@@ -22,7 +21,7 @@ public sealed class SourceGenerator : IIncrementalGenerator {
     public void Initialize(IncrementalGeneratorInitializationContext context) {
 
         var disposableInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
-                typeof(DisposableAttribute).FullName,
+                AttributeMetadata.DisposableAttributeName,
                 predicate: static (node, cancel) => node is TypeDeclarationSyntax,
                 transform: static (context, cancel) =>
                     new DisposableInfo(
@@ -31,19 +30,18 @@ public sealed class SourceGenerator : IIncrementalGenerator {
             );
 
         var disposeInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
-                typeof(DisposeAttribute).FullName,
-                predicate: static (node, cancel) => IsValidDisposeNode(node),
+                AttributeMetadata.DisposeAttributeName,
+                predicate: static (node, cancel) => node is VariableDeclaratorSyntax or PropertyDeclarationSyntax,
                 transform: static (context, cancel) =>
-                    new DisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!, typeof(DisposeAttribute).FullName)
+                    new DisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!, AttributeMetadata.DisposeAttributeName)
             );
 
         var asyncDisposeInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
-            typeof(AsyncDisposeAttribute).FullName,
-            predicate: static (node, cancel) => IsValidDisposeNode(node),
+            AttributeMetadata.AsyncDisposeAttributeName,
+            predicate: static (node, cancel) => node is VariableDeclaratorSyntax or PropertyDeclarationSyntax,
             transform: static (context, cancel) =>
                 new AsyncDisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!)
         );
-
 
         var all = disposableInfos.Collect().Combine(disposeInfos.Collect().Combine(asyncDisposeInfos.Collect()));
 
@@ -52,263 +50,288 @@ public sealed class SourceGenerator : IIncrementalGenerator {
 
     private void GenerateSource(SourceProductionContext context, (ImmutableArray<DisposableInfo> Left, (ImmutableArray<DisposeInfo> Left, ImmutableArray<AsyncDisposeInfo> Right) Right) tuple) {
 
-        var types = tuple.Left;
-
-        if (types.IsDefaultOrEmpty) {
+        if (context.CancellationToken.IsCancellationRequested) {
             return;
         }
 
-        foreach (var dtInfo in types) {
-
-            if (!dtInfo.IsPartial) {
-                context.ReportDiagnostic(Diagnostic.Create(TypeMustBePartial, dtInfo.TypeDeclarationSyntax.Identifier.GetLocation(), dtInfo.TypeSymbol.Name));
-                continue;
+        try {
+            var types = tuple.Left;
+            if (types.IsDefaultOrEmpty) {
+                return;
             }
 
-            var disposeInfos = tuple.Right.Left.Where(d => SymbolEqualityComparer.Default.Equals(d.ContainingType, dtInfo.TypeSymbol)).ToDictionary(p => p.MemberName)!;
-            var asyncDisposeInfos = tuple.Right.Right.Where(d => SymbolEqualityComparer.Default.Equals(d.ContainingType, dtInfo.TypeSymbol)).ToDictionary(p => p.MemberName)!;
+            foreach (var dtInfo in types) {
 
-            if (disposeInfos.Count + asyncDisposeInfos.Count == 0 && !dtInfo.HasUnmanagedResources) {
-                continue;
-            }
+                if (!dtInfo.IsPartial) {
+                    context.ReportDiagnostic(Diagnostic.Create(TypeMustBePartial, dtInfo.TypeDeclarationSyntax.Identifier.GetLocation(), dtInfo.TypeSymbol.Name));
+                    continue;
+                }
 
-            CsFileBuilder builder = new CsFileBuilder();
+                // During live analysis, cached values from different incremental compilations
+                // can contain equivalent source symbols that are not equal by symbol identity.
+                // Match by a stable fully-qualified type key instead.
+                Dictionary<string, DisposeInfo> disposeInfos = tuple.Right.Left
+                    .Where(d => d.ContainingTypeKey == dtInfo.TypeKey)
+                    .ToDictionary(p => p.MemberName);
+                Dictionary<string, AsyncDisposeInfo> asyncDisposeInfos = tuple.Right.Right
+                    .Where(d => d.ContainingTypeKey == dtInfo.TypeKey)
+                    .ToDictionary(p => p.MemberName);
 
-            builder.AddAutoGeneratedHeader("ReflectionIT.DisposeGenerator")
-                 .AddPreprocessorDirectives()
-                 .AddEmptyLine();
+                if (disposeInfos.Count + asyncDisposeInfos.Count == 0 && !dtInfo.HasUnmanagedResources) {
+                    continue;
+                }
 
-            builder.AddNamespace(dtInfo.TypeSymbol.ContainingNamespace);
+                CsFileBuilder builder = new CsFileBuilder();
 
-            builder.AddPartialType(dtInfo.TypeSymbol);
-            builder.AddStatementAndStartBlock(string.Empty);
+                builder.AddAutoGeneratedHeader("ReflectionIT.DisposeGenerator")
+                     .AddPreprocessorDirectives()
+                     .AddEmptyLine();
 
-            bool generateDispose = disposeInfos.Count > 0;
-            bool generateAsyncDispose = asyncDisposeInfos.Count > 0;
+                builder.AddNamespace(dtInfo.TypeSymbol.ContainingNamespace);
 
-            if (!dtInfo.OverrideDispose && generateDispose) {
+                builder.AddPartialType(dtInfo.TypeSymbol);
+                builder.AddStatementAndStartBlock(string.Empty);
 
-                string am = dtInfo.ExplicitInterfaceImplementation ? "void global::System.IDisposable." : "public void ";
+                bool generateDispose = disposeInfos.Count > 0;
+                bool generateAsyncDispose = asyncDisposeInfos.Count > 0;
 
-                builder.AddXmlCommentLines(
-                    "<summary>",
-                    "Releases all resources used by the current instance.",
-                    "</summary>");
-                builder.AddStatements(
-                    $$"""{{am}}Dispose() {""",
-                    "    Dispose(disposing: true);",
-                    "    global::System.GC.SuppressFinalize(this);",
-                    "}");
-                builder.AddEmptyLine();
-            }
+                if (!dtInfo.OverrideDispose && generateDispose) {
 
-            //const string valueTaskText = "ValueTask";
-            const string valueTaskText = "global::System.Threading.Tasks.ValueTask";
+                    string am = dtInfo.ExplicitInterfaceImplementation ? "void global::System.IDisposable." : "public void ";
 
-            if (!dtInfo.OverrideDisposeAsyncCore && generateAsyncDispose) {
-
-                string am = dtInfo.ExplicitInterfaceImplementation ? $"async {valueTaskText} global::System.IAsyncDisposable." : $"public async {valueTaskText} ";
-
-                builder.AddXmlCommentLines(
-                    "<summary>",
-                    "Asynchronously releases all resources used by the current instance.",
-                    "</summary>",
-                    "<returns>",
-                    "A task that represents the asynchronous dispose operation.",
-                    "</returns>");
-                builder.AddStatements(
-                    $$"""{{am}}DisposeAsync() {""",
-                    "    await DisposeAsyncCore().ConfigureAwait(false);",
-                    "    global::System.GC.SuppressFinalize(this);",
-                    "}");
-                builder.AddEmptyLine();
-            }
-
-            (string isDisposedType, string isDisposedReturnCheck, string isDisposedCheck, string? setIsDisposed) = dtInfo.IsThreadSafe
-                ? ("int", "global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0", "_isDisposed != 0", null)
-                : ("bool", "_isDisposed", "_isDisposed", "_isDisposed = true;");
-
-            string accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
-            string? baseDisposed = null;
-            string isDisposedAccessModifiers = dtInfo.IsValueType ? "private" : HasDisposableBase(dtInfo.TypeSymbol) ? "protected override" : dtInfo.IsSealed ? "private" : "protected virtual";
-            string isDisposedGetter = dtInfo.IsThreadSafe ? "_isDisposed != 0" : "_isDisposed";
-            string? baseIsDisposed = isDisposedAccessModifiers == "protected override" ? " || base.IsDisposed" : null;
-
-            if (dtInfo.OverrideDispose && generateDispose && accessModifiers.Contains("virtual")) {
-                accessModifiers = "protected override";
-                baseDisposed = "    base.Dispose(disposing);";
-            }
-
-            if (dtInfo.HasUnmanagedResources && generateDispose) {
-                builder.AddXmlCommentLines(
-                    "<summary>",
-                    "Releases unmanaged resources held by the current instance.",
-                    "</summary>");
-                builder.AddStatements(
-                    $$"""~{{dtInfo.TypeSymbol.Name}}() {""",
-                    "    Dispose(disposing: false);",
-                    "}");
-                builder.AddEmptyLine();
-                builder.AddXmlCommentLines(
-                    "<summary>",
-                    "Releases unmanaged resources held by the current instance.",
-                    "</summary>");
-                builder.AddStatements(
-                    $$"""{{accessModifiers}} partial void ReleaseUnmanagedResources();""");
-                builder.AddEmptyLine();
-            }
-
-            if (generateDispose || generateAsyncDispose) {
-                builder.AddXmlCommentLines(
-                    "<summary>",
-                    dtInfo.IsThreadSafe
-                        ? "Detects redundant Dispose() calls in a thread-safe manner. _isDisposed == 0 means Dispose(bool) has not been called yet, and _isDisposed == 1 means Dispose(bool) has already been called. This field must not be modified manually."
-                        : "Tracks whether the current instance has been disposed. This field must not be modified manually.",
-                    "</summary>");
-                builder.AddStatements($"private {isDisposedType} _isDisposed;");
-                builder.AddEmptyLine();
-
-                builder.AddXmlCommentLines(
-                    "<summary>",
-                    "Gets a value indicating whether the current instance has been disposed.",
-                    "</summary>");
-                builder.AddStatements(
-                    $$"""{{isDisposedAccessModifiers}} bool IsDisposed => {{isDisposedGetter}}{{baseIsDisposed}};""");
-                builder.AddEmptyLine();
-
-                if (dtInfo.GenerateThrowIfDisposed && !dtInfo.OverrideDispose && !dtInfo.OverrideDisposeAsyncCore) {
                     builder.AddXmlCommentLines(
-                        "<summary>",
-                        "Throws an exception if the current instance has been disposed.",
-                        "</summary>");
-                    builder.AddStatements(
-                        $$"""{{(dtInfo.IsValueType || dtInfo.IsSealed ? "private" : "protected")}} void ThrowIfDisposed() {""",
-                        "    if (IsDisposed) {",
-                        $$"""        throw new global::System.ObjectDisposedException(nameof({{dtInfo.TypeSymbol.Name}}));""",
-                        "    }");
+                            "<summary>",
+                            "Releases all resources used by the current instance.",
+                            "</summary>")
+                        .AddGeneratedCodeAttribute()
+                        .AddStatements(
+                            $$"""{{am}}Dispose() {""",
+                            "    Dispose(disposing: true);",
+                            "    global::System.GC.SuppressFinalize(this);",
+                            "}")
+                        .AddEmptyLine();
+                }
 
-                    builder.AddStatements("}");
+                const string valueTaskText = "global::System.Threading.Tasks.ValueTask";
+
+                if (!dtInfo.OverrideDisposeAsyncCore && generateAsyncDispose) {
+
+                    string am = dtInfo.ExplicitInterfaceImplementation ? $"async {valueTaskText} global::System.IAsyncDisposable." : $"public async {valueTaskText} ";
+
+                    builder.AddXmlCommentLines(
+                            "<summary>",
+                            "Asynchronously releases all resources used by the current instance.",
+                            "</summary>",
+                            "<returns>",
+                            "A task that represents the asynchronous dispose operation.",
+                            "</returns>")
+                        .AddGeneratedCodeAttribute()
+                        .AddStatements(
+                            $$"""{{am}}DisposeAsync() {""",
+                            "    await DisposeAsyncCore().ConfigureAwait(false);",
+                            "    global::System.GC.SuppressFinalize(this);",
+                            "}")
+                        .AddEmptyLine();
+                }
+
+                (string isDisposedType, string isDisposedReturnCheck, string isDisposedCheck, string? setIsDisposed) = dtInfo.IsThreadSafe
+                    ? ("int", "global::System.Threading.Interlocked.CompareExchange(ref _isDisposed, 1, 0) != 0", "_isDisposed != 0", null)
+                    : ("bool", "_isDisposed", "_isDisposed", "_isDisposed = true;");
+
+                string accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
+                string? baseDisposed = null;
+                string isDisposedAccessModifiers = dtInfo.IsValueType ? "private" : HasDisposableBase(dtInfo.TypeSymbol) ? "protected override" : dtInfo.IsSealed ? "private" : "protected virtual";
+                string isDisposedGetter = dtInfo.IsThreadSafe ? "_isDisposed != 0" : "_isDisposed";
+                string? baseIsDisposed = isDisposedAccessModifiers == "protected override" ? " || base.IsDisposed" : null;
+
+                if (dtInfo.OverrideDispose && generateDispose && accessModifiers.Contains("virtual")) {
+                    accessModifiers = "protected override";
+                    baseDisposed = "    base.Dispose(disposing);";
+                }
+
+                if (dtInfo.HasUnmanagedResources && generateDispose) {
+                    builder.AddXmlCommentLines(
+                            "<summary>",
+                            "Releases unmanaged resources held by the current instance.",
+                            "</summary>")
+                        .AddGeneratedCodeAttribute()
+                        .AddStatements(
+                            $$"""~{{dtInfo.TypeSymbol.Name}}() {""",
+                            "    Dispose(disposing: false);",
+                            "}")
+                        .AddEmptyLine()
+                        .AddXmlCommentLines(
+                            "<summary>",
+                            "Releases unmanaged resources held by the current instance.",
+                            "</summary>")
+                        .AddGeneratedCodeAttribute()
+                        .AddStatements(
+                           $$"""{{accessModifiers}} partial void ReleaseUnmanagedResources();""")
+                        .AddEmptyLine();
+                }
+
+                if (generateDispose || generateAsyncDispose) {
+                    builder.AddXmlCommentLines(
+                            "<summary>",
+                            dtInfo.IsThreadSafe
+                                ? "Detects redundant Dispose() calls in a thread-safe manner. _isDisposed == 0 means Dispose(bool) has not been called yet, and _isDisposed == 1 means Dispose(bool) has already been called. This field must not be modified manually."
+                                : "Tracks whether the current instance has been disposed. This field must not be modified manually.",
+                            "</summary>")
+                        .AddGeneratedCodeAttribute(false)
+                        .AddStatements($"private {isDisposedType} _isDisposed;")
+                        .AddEmptyLine();
+
+                    builder.AddXmlCommentLines(
+                            "<summary>",
+                            "Gets a value indicating whether the current instance has been disposed.",
+                            "</summary>")
+                        .AddGeneratedCodeAttribute()
+                        .AddStatements(
+                            $$"""{{isDisposedAccessModifiers}} bool IsDisposed => {{isDisposedGetter}}{{baseIsDisposed}};""")
+                        .AddEmptyLine();
+
+                    if (dtInfo.GenerateThrowIfDisposed && !dtInfo.OverrideDispose && !dtInfo.OverrideDisposeAsyncCore) {
+                        builder.AddXmlCommentLines(
+                                "<summary>",
+                                "Throws an exception if the current instance has been disposed.",
+                                "</summary>")
+                            .AddGeneratedCodeAttribute()
+                            .AddStatements(
+                                $$"""{{(dtInfo.IsValueType || dtInfo.IsSealed ? "private" : "protected")}} void ThrowIfDisposed() {""",
+                                "    if (IsDisposed) {",
+                                $$"""        throw new global::System.ObjectDisposedException(nameof({{dtInfo.TypeSymbol.Name}}));""",
+                                "    }")
+                            .AddStatements("}")
+                            .AddEmptyLine();
+                    }
+                }
+
+                if (generateDispose) {
+
+                    builder.AddXmlCommentLines(
+                            "<summary>",
+                            "Releases the unmanaged resources used by the current instance and optionally releases the managed resources.",
+                            "</summary>",
+                            "<param name=\"disposing\">\"true\" to release managed resources; otherwise, \"false\".</param>")
+                        .AddGeneratedCodeAttribute()
+                        .AddStatements(
+                            $$"""{{accessModifiers}} void Dispose(bool disposing) {""",
+                            $$"""    if ({{isDisposedReturnCheck}}) {""",
+                             "        return;",
+                             "    }",
+                             $"""    {setIsDisposed}""",
+                              """    if (disposing) {""");
+
+                    foreach (var item in disposeInfos.Values) {
+                        builder.AddStatements($"        this.{item.MemberName}?.Dispose();");
+                    }
+
+                    foreach (var item in asyncDisposeInfos.Values) {
+                        if (!disposeInfos.ContainsKey(item.MemberName)) {
+                            builder.AddStatements($"        if ({item.MemberName} is IDisposable local{item.MemberName}) local{item.MemberName}.Dispose();");
+                        }
+                    }
+                    builder.AddStatements("    }");
+                    builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "    ReleaseUnmanagedResources();");
+
+                    SetNull(disposeInfos, asyncDisposeInfos, builder);
+
+                    builder.AddStatements(
+                       baseDisposed,
+                       "}");
                     builder.AddEmptyLine();
                 }
-            }
 
-            if (generateDispose) {
+                if (generateAsyncDispose) {
 
-                builder.AddXmlCommentLines(
-                    "<summary>",
-                    "Releases the unmanaged resources used by the current instance and optionally releases the managed resources.",
-                    "</summary>",
-                    "<param name=\"disposing\">\"true\" to release managed resources; otherwise, \"false\".</param>");
-                builder.AddStatements(
-                    $$"""{{accessModifiers}} void Dispose(bool disposing) {""",
-                    $$"""    if ({{isDisposedReturnCheck}}) {""",
-                     "        return;",
-                     "    }",
-                     $"""    {setIsDisposed}""",
-                      """    if (disposing) {""");
+                    accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
 
-                foreach (var item in disposeInfos.Values) {
-                    builder.AddStatements($"        {item.MemberName}?.Dispose();");
-                }
-
-                foreach (var item in asyncDisposeInfos.Values) {
-                    if (!disposeInfos.ContainsKey(item.MemberName)) {
-                        builder.AddStatements($"        if ({item.MemberName} is IDisposable local{item.MemberName}) local{item.MemberName}.Dispose();");
+                    if (dtInfo.OverrideDisposeAsyncCore && accessModifiers.Contains("virtual")) {
+                        accessModifiers = "protected override";
+                        baseDisposed = "    await base.DisposeAsyncCore().ConfigureAwait(false);";
                     }
-                }
 
+                    builder.AddXmlCommentLines(
+                            "<summary>",
+                            "Asynchronously releases the resources used by the current instance.",
+                            "</summary>",
+                            "<returns>",
+                            "A task that represents the asynchronous dispose operation.",
+                            "</returns>")
+                        .AddGeneratedCodeAttribute()
+                        .AddStatements(
+                            $$"""{{accessModifiers}} async {{valueTaskText}} DisposeAsyncCore() {""",
+                            $$"""    if ({{isDisposedReturnCheck}}) {""",
+                             "        return;",
+                             "    }",
+                             $"""    {setIsDisposed}""");
 
-                builder.AddStatements("    }");
-
-                builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "    ReleaseUnmanagedResources();");
-
-                SetNull(disposeInfos, asyncDisposeInfos, builder);
-
-                builder.AddStatements(
-                   baseDisposed,
-                   "}");
-                builder.AddEmptyLine();
-            }
-
-            if (generateAsyncDispose) {
-
-                accessModifiers = dtInfo.IsSealed || dtInfo.IsValueType ? "private" : "protected virtual";
-
-                if (dtInfo.OverrideDisposeAsyncCore && accessModifiers.Contains("virtual")) {
-                    accessModifiers = "protected override";
-                    baseDisposed = "    await base.DisposeAsyncCore().ConfigureAwait(false);";
-                }
-
-                builder.AddXmlCommentLines(
-                    "<summary>",
-                    "Asynchronously releases the resources used by the current instance.",
-                    "</summary>",
-                    "<returns>",
-                    "A task that represents the asynchronous dispose operation.",
-                    "</returns>");
-                builder.AddStatements(
-                    $$"""{{accessModifiers}} async {{valueTaskText}} DisposeAsyncCore() {""",
-                    $$"""    if ({{isDisposedReturnCheck}}) {""",
-                     "        return;",
-                     "    }",
-                     $"""    {setIsDisposed}""");
-
-                foreach (var item in asyncDisposeInfos.Values) {
-                    builder.AddStatements($$"""    if ({{item.MemberName}} != null) {""",
-                                          $"        await {item.MemberName}.DisposeAsync().ConfigureAwait({item.ConfigureAwait.ToString().ToLower()});",
-                                           "    }");
-                }
-
-                foreach (var item in disposeInfos.Values) {
-                    if (!asyncDisposeInfos.ContainsKey(item.MemberName)) {
-                        builder.AddStatements($"    {item.MemberName}?.Dispose();");
+                    foreach (var item in asyncDisposeInfos.Values) {
+                        builder.AddStatements($$"""    if (this.{{item.MemberName}} != null) {""",
+                                              $"        await this.{item.MemberName}.DisposeAsync().ConfigureAwait({item.ConfigureAwait.ToString().ToLower()});",
+                                               "    }");
                     }
+
+                    foreach (var item in disposeInfos.Values) {
+                        if (!asyncDisposeInfos.ContainsKey(item.MemberName)) {
+                            builder.AddStatements($"    this.{item.MemberName}?.Dispose();");
+                        }
+                    }
+
+                    builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "    ReleaseUnmanagedResources();");
+                    SetNull(disposeInfos, asyncDisposeInfos, builder);
+
+                    builder.AddStatements(
+                       baseDisposed,
+                       "}");
+                    builder.AddEmptyLine();
                 }
 
-                builder.AddStatementsIf(dtInfo.HasUnmanagedResources, "    ReleaseUnmanagedResources();");
-                SetNull(disposeInfos, asyncDisposeInfos, builder);
+                builder.EndPartialType(dtInfo.TypeSymbol);
+                builder.EndNamespace();
 
-                builder.AddStatements(
-                   baseDisposed,
-                   "}");
-                builder.AddEmptyLine();
+                var src = builder.Build();
+
+                var filename = dtInfo.TypeSymbol.ToDisplayString()
+                                  .Replace('<', '{')
+                                  .Replace('>', '}')
+                                  .Replace(" ", string.Empty);
+
+                context.AddSource($"{filename}.g.cs", SourceText.From(src, Encoding.UTF8));
             }
-
-            builder.EndPartialType(dtInfo.TypeSymbol);
-            builder.EndNamespace();
-
-            var src = builder.Build();
-
-            var filename = dtInfo.TypeSymbol.ToDisplayString()
-                              .Replace('<', '{')
-                              .Replace('>', '}')
-                              .Replace(" ", string.Empty);
-
-            context.AddSource($"{filename}.g.cs", SourceText.From(src, Encoding.UTF8));
+        } catch (Exception ex) {
+            ReportException(context, ex);
         }
 
         static void SetNull(Dictionary<string, DisposeInfo> disposeInfos, Dictionary<string, AsyncDisposeInfo> asyncDisposeInfos, CsFileBuilder builder) {
             foreach (var item in disposeInfos.Values.Where(static p => p.SetToNull).Union(asyncDisposeInfos.Values.Where(static p => p.SetToNull))) {
-                builder.AddStatements($"    {item.MemberName} = null;");
+                builder.AddStatements($"    this.{item.MemberName} = null;");
             }
         }
     }
 
-    internal static bool IsValidDisposeNode(SyntaxNode node) {
-        return node is VariableDeclaratorSyntax or PropertyDeclarationSyntax;
+    private static void ReportException(SourceProductionContext spc, Exception ex) {
+        var descriptor = new DiagnosticDescriptor(
+            id: "DISPGEN001",
+            title: "DisposeGenerator crashed",
+            messageFormat: "DisposeGenerator threw an exception: {0}",
+            category: "SourceGenerator",
+            DiagnosticSeverity.Error,
+            isEnabledByDefault: true);
+
+        spc.ReportDiagnostic(
+            Diagnostic.Create(descriptor, Location.None, ex.ToString()));
     }
 
     private static bool HasDisposableBase(ITypeSymbol typeSymbol) {
         var baseType = typeSymbol.BaseType;
         while (baseType is not null) {
-            var disposableAttribute = baseType.GetAttributes().FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == typeof(DisposableAttribute).FullName);
+            var disposableAttribute = baseType.GetAttributes().FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == AttributeMetadata.DisposableAttributeName);
             if (disposableAttribute is not null) {
                 return true;
             }
-
             baseType = baseType.BaseType;
         }
-
         return false;
     }
 
