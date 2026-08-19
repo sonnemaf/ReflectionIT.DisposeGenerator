@@ -49,12 +49,19 @@ The generator creates the dispose members for the annotated type, including `_is
 - The annotated type must be `partial`.
 - `[Disposable]` can be applied to classes and structs.
 - `[Dispose]` and `[AsyncDispose]` can be applied to fields and properties.
-- The generator emits `RITDG001` when a type annotated with `[Disposable]` is not declared `partial`.
-- Members annotated with `[Dispose]` or `[AsyncDispose]` must support the generated dispose call pattern. Otherwise the generated code can produce compiler errors.
+The generator reports diagnostics at the annotated type or member:
 
-### RITDG001
-
-`RITDG001`: Type `'{typeName}'` is annotated with `[Disposable]` and must be declared partial for ReflectionIT.DisposeGenerator to generate code.
+| ID | Description |
+| --- | --- |
+| `RITDG001` | A type annotated with `[Disposable]` must be partial. |
+| `RITDG002` | A member annotated with `[Dispose]` must implement `IDisposable`. |
+| `RITDG003` | A member annotated with `[AsyncDispose]` must implement `IAsyncDisposable`. |
+| `RITDG004` | `SetToNull` requires a writable nullable field or property. |
+| `RITDG005` | Static members cannot participate in instance disposal. |
+| `RITDG006` | An override option requires a suitable overridable base method. |
+| `RITDG007` | Types containing an annotated nested type must be partial. |
+| `RITDG008` | The requested type shape is unsupported. |
+| `RITDG009` | An existing member conflicts with a member that would be generated. |
 
 ## Attribute reference
 
@@ -98,7 +105,7 @@ Depending on the options and the annotated members, the generator can create:
 
 ## Recommended use of `ThrowIfDisposed`
 
-Call `ThrowIfDisposed()` at the start of public instance members that depend on resources managed by the generated dispose pattern. The generated method uses the generated `IsDisposed` property, so derived types can customize disposed-state checks through `IsDisposed` instead of overriding `ThrowIfDisposed()`.
+Call `ThrowIfDisposed()` at the start of public instance members that depend on resources managed by the generated dispose pattern. For inheritable classes the method is generated as `protected virtual`; a generated derived implementation is `protected override`.
 
 ```cs
 using ReflectionIT.DisposeGenerator.Attributes;
@@ -168,7 +175,7 @@ partial class LogWriter
     /// <summary>
     /// Throws an exception if the current instance has been disposed.
     /// </summary>
-    protected void ThrowIfDisposed() {
+    protected virtual void ThrowIfDisposed() {
         if (IsDisposed) {
             throw new global::System.ObjectDisposedException(nameof(LogWriter));
         }
@@ -240,7 +247,7 @@ partial class LogWriter
     /// <summary>
     /// Throws an exception if the current instance has been disposed.
     /// </summary>
-    protected void ThrowIfDisposed() {
+    protected virtual void ThrowIfDisposed() {
         if (IsDisposed) {
             throw new global::System.ObjectDisposedException(nameof(LogWriter));
         }
@@ -305,7 +312,7 @@ partial class SecondLogWriter
     /// <summary>
     /// Throws an exception if the current instance has been disposed.
     /// </summary>
-    protected void ThrowIfDisposed() {
+    protected override void ThrowIfDisposed() {
         if (IsDisposed) {
             throw new global::System.ObjectDisposedException(nameof(SecondLogWriter));
         }
@@ -333,6 +340,7 @@ partial class SecondLogWriter
 
 Set `HasUnmanagedResources = true` to include unmanaged resource cleanup support.
 Then implement the partial method `ReleaseUnmanagedResources()`, which releases the unmanaged resource.
+Unmanaged-resource finalization is supported for classes only.
 
 If you need to work with unmanaged resources, it is strongly recommended to wrap the unmanaged `IntPtr` handle in a [SafeHandle](https://learn.microsoft.com/en-us/dotnet/standard/garbage-collection/implementing-dispose#safe-handles).
 
@@ -394,7 +402,7 @@ partial class LogWriterWithAnExtraIntPtr
     /// <summary>
     /// Throws an exception if the current instance has been disposed.
     /// </summary>
-    protected void ThrowIfDisposed() {
+    protected virtual void ThrowIfDisposed() {
         if (IsDisposed) {
             throw new global::System.ObjectDisposedException(nameof(LogWriterWithAnExtraIntPtr));
         }
@@ -461,7 +469,7 @@ partial class LogWriter
     /// <summary>
     /// Throws an exception if the current instance has been disposed.
     /// </summary>
-    protected void ThrowIfDisposed() {
+    protected virtual void ThrowIfDisposed() {
         if (IsDisposed) {
             throw new global::System.ObjectDisposedException(nameof(LogWriter));
         }
@@ -489,9 +497,9 @@ partial class LogWriter
 
 The type marked with `[Disposable]` is not declared `partial`. Add the `partial` keyword to the class or struct declaration.
 
-### Why do I get compiler errors for `Dispose()` or `DisposeAsync()` on an annotated member?
+### Why do I get `RITDG002` or `RITDG003`?
 
-The generator emits calls to `Dispose()` for `[Dispose]` members and `DisposeAsync()` for `[AsyncDispose]` members. Make sure the annotated member supports the corresponding API.
+The generator emits calls to `Dispose()` for `[Dispose]` members and `DisposeAsync()` for `[AsyncDispose]` members. Make sure the annotated member implements the corresponding interface.
 
 ### Why was no code generated?
 

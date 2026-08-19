@@ -20,6 +20,9 @@ internal class DisposableInfo {
     public bool IsSealed { get; }
     public bool IsValueType { get; }
     public bool IsPartial { get; }
+    public bool IsStatic { get; }
+    public bool IsReadOnly { get; }
+    public bool IsRefLikeType { get; }
 
 
     public DisposableInfo(ITypeSymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax) {
@@ -30,6 +33,9 @@ internal class DisposableInfo {
         IsSealed = typeSymbol.IsSealed;
         IsValueType = typeSymbol.IsValueType;
         IsPartial = typeDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword);
+        IsStatic = typeSymbol.IsStatic;
+        IsReadOnly = typeSymbol is INamedTypeSymbol { IsReadOnly: true };
+        IsRefLikeType = typeSymbol.IsRefLikeType;
 
         var attribute = typeSymbol.GetAttributes().First(a => a.AttributeClass?.ToDisplayString() == AttributeMetadata.DisposableAttributeName);
 
