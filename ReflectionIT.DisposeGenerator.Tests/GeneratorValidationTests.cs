@@ -78,6 +78,39 @@ public class GeneratorValidationTests {
         Assert.DoesNotContain("protected override void ThrowIfDisposed()", generated);
     }
 
+    [Fact]
+    public void RegeneratesWhenAsyncDisposeOptionsChange() {
+        const string initialSource = """
+            [Disposable]
+            public partial class Owner : IAsyncDisposable {
+                [AsyncDispose(ConfigureAwait = false)]
+                private readonly System.IO.MemoryStream _stream = new();
+            }
+            """;
+        const string updatedSource = """
+            [Disposable]
+            public partial class Owner : IAsyncDisposable {
+                [AsyncDispose(ConfigureAwait = true)]
+                private readonly System.IO.MemoryStream _stream = new();
+            }
+            """;
+
+        CSharpCompilation compilation = CreateCompilation(initialSource);
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(new SourceGenerator().AsSourceGenerator());
+        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out _);
+        string initialGenerated = Assert.Single(driver.GetRunResult().GeneratedTrees).ToString();
+
+        CSharpCompilation updatedCompilation = compilation.ReplaceSyntaxTree(
+            compilation.SyntaxTrees.Single(),
+            ParseSource(updatedSource));
+        driver = driver.RunGeneratorsAndUpdateCompilation(updatedCompilation, out Compilation output, out _);
+        string updatedGenerated = Assert.Single(driver.GetRunResult().GeneratedTrees).ToString();
+
+        AssertNoErrors(output);
+        Assert.Contains("DisposeAsync().ConfigureAwait(false)", initialGenerated);
+        Assert.Contains("DisposeAsync().ConfigureAwait(true)", updatedGenerated);
+    }
+
     [Theory]
     [MemberData(nameof(InvalidUsageCases))]
     public void ReportsInvalidUsageAtUserCode(string source, string diagnosticId) {
@@ -158,20 +191,23 @@ public class GeneratorValidationTests {
     };
 
     private static (Compilation Output, GeneratorDriverRunResult Result) RunGenerator(string source) {
-        SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(
-            TestDisposeGenerator.ATTRIBUTE_CODE_IN_TEST + Environment.NewLine + source,
-            new CSharpParseOptions(LanguageVersion.CSharp13));
-
-        CSharpCompilation compilation = CSharpCompilation.Create(
-            assemblyName: "GeneratorValidation",
-            syntaxTrees: [syntaxTree],
-            references: GetMetadataReferences(),
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
-
+        CSharpCompilation compilation = CreateCompilation(source);
         GeneratorDriver driver = CSharpGeneratorDriver.Create(new SourceGenerator().AsSourceGenerator());
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out Compilation output, out _);
         return (output, driver.GetRunResult());
     }
+
+    private static CSharpCompilation CreateCompilation(string source) =>
+        CSharpCompilation.Create(
+            assemblyName: "GeneratorValidation",
+            syntaxTrees: [ParseSource(source)],
+            references: GetMetadataReferences(),
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+    private static SyntaxTree ParseSource(string source) =>
+        CSharpSyntaxTree.ParseText(
+            TestDisposeGenerator.ATTRIBUTE_CODE_IN_TEST + Environment.NewLine + source,
+            new CSharpParseOptions(LanguageVersion.CSharp13));
 
     private static IEnumerable<MetadataReference> GetMetadataReferences() {
         string trustedAssemblies = (string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!;
