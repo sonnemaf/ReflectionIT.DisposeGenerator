@@ -6,7 +6,7 @@ namespace ReflectionIT.DisposeGenerator;
 
 internal class DisposableInfo {
 
-    public ITypeSymbol TypeSymbol { get; }
+    public INamedTypeSymbol TypeSymbol { get; }
     public string TypeKey { get; }
     public TypeDeclarationSyntax TypeDeclarationSyntax { get; }
 
@@ -25,7 +25,7 @@ internal class DisposableInfo {
     public bool IsRefLikeType { get; }
 
 
-    public DisposableInfo(ITypeSymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax) {
+    public DisposableInfo(INamedTypeSymbol typeSymbol, TypeDeclarationSyntax typeDeclarationSyntax, AttributeData attribute) {
         TypeSymbol = typeSymbol;
         TypeKey = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         TypeDeclarationSyntax = typeDeclarationSyntax;
@@ -37,8 +37,6 @@ internal class DisposableInfo {
         IsReadOnly = typeSymbol is INamedTypeSymbol { IsReadOnly: true };
         IsRefLikeType = typeSymbol.IsRefLikeType;
 
-        var attribute = typeSymbol.GetAttributes().First(a => a.AttributeClass?.ToDisplayString() == AttributeMetadata.DisposableAttributeName);
-
         IsThreadSafe = ReadBoolean(attribute, AttributeMetadata.IsThreadSafePropertyName);
         OverrideDispose = ReadBoolean(attribute, AttributeMetadata.OverrideDisposePropertyName);
         OverrideDisposeAsyncCore = ReadBoolean(attribute, AttributeMetadata.OverrideDisposeAsyncCorePropertyName);
@@ -48,7 +46,7 @@ internal class DisposableInfo {
 
         static bool ReadBoolean(AttributeData attribute, string propertyName, bool defaultValue = false) {
             var namedArgument = attribute.NamedArguments.FirstOrDefault(n => n.Key == propertyName);
-            return namedArgument.Key is null ? defaultValue : namedArgument.Value.ToCSharpString() == "true";
+            return namedArgument.Key is null ? defaultValue : namedArgument.Value.Value is true;
         }
     }
 }
