@@ -17,8 +17,8 @@
 		<RepositoryUrl>https://github.com/sonnemaf/ReflectionIT.DisposeGenerator</RepositoryUrl>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <PackageReleaseNotes>
-            - Bug fix in which te source was generated on build time but not visible in the VS editor
-            - [GeneratedCode] and [ExcludeFromCodeCoverage] attributes added in generated code
+            - More analyzers
+            - GitHub Copilot suggested improvements
         </PackageReleaseNotes>
 	</PropertyGroup>
 
