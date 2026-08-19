@@ -89,22 +89,29 @@ public sealed class SourceGenerator : IIncrementalGenerator {
                 predicate: static (node, cancel) => node is TypeDeclarationSyntax,
                 transform: static (context, cancel) =>
                     new DisposableInfo(
-                        (ITypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!,
-                        (TypeDeclarationSyntax)context.TargetNode!)
+                        (INamedTypeSymbol)context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!,
+                        (TypeDeclarationSyntax)context.TargetNode!,
+                        context.Attributes.Single())
             );
 
         var disposeInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
                 AttributeMetadata.DisposeAttributeName,
                 predicate: static (node, cancel) => node is VariableDeclaratorSyntax or PropertyDeclarationSyntax,
                 transform: static (context, cancel) =>
-                    new DisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!, AttributeMetadata.DisposeAttributeName)
+                    new DisposeInfo(
+                        context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!,
+                        context.Attributes.Single(),
+                        context.SemanticModel.Compilation)
             );
 
         var asyncDisposeInfos = context.SyntaxProvider.ForAttributeWithMetadataName(
             AttributeMetadata.AsyncDisposeAttributeName,
             predicate: static (node, cancel) => node is VariableDeclaratorSyntax or PropertyDeclarationSyntax,
             transform: static (context, cancel) =>
-                new AsyncDisposeInfo(context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!)
+                new AsyncDisposeInfo(
+                    context.SemanticModel.GetDeclaredSymbol(context.TargetNode, cancel)!,
+                    context.Attributes.Single(),
+                    context.SemanticModel.Compilation)
         );
 
         var all = disposableInfos.Collect().Combine(disposeInfos.Collect().Combine(asyncDisposeInfos.Collect()));
@@ -504,16 +511,14 @@ public sealed class SourceGenerator : IIncrementalGenerator {
     }
 
     private static bool ValidateMember(SourceProductionContext context, DisposeInfo info, bool isAsync) {
-        Location? location = info.Symbol.Locations.FirstOrDefault();
+        Location? location = info.Location;
 
         if (info.IsStatic) {
             context.ReportDiagnostic(Diagnostic.Create(StaticMemberNotSupported, location, info.MemberName));
             return false;
         }
 
-        bool supportsDisposal = isAsync
-            ? ImplementsInterface(info.MemberType, "System.IAsyncDisposable")
-            : ImplementsInterface(info.MemberType, "System.IDisposable");
+        bool supportsDisposal = isAsync ? info.SupportsAsyncDispose : info.SupportsDispose;
 
         if (!supportsDisposal) {
             context.ReportDiagnostic(Diagnostic.Create(
@@ -690,9 +695,5 @@ public sealed class SourceGenerator : IIncrementalGenerator {
         (symbol.IsVirtual || symbol.IsAbstract || symbol.IsOverride)
         && !symbol.IsSealed
         && symbol.DeclaredAccessibility == Accessibility.Protected;
-
-    private static bool ImplementsInterface(ITypeSymbol typeSymbol, string metadataName) =>
-        typeSymbol.ToDisplayString() == metadataName
-        || typeSymbol.AllInterfaces.Any(i => i.ToDisplayString() == metadataName);
 
 }
